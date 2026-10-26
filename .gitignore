@@ -1,0 +1,14 @@
+# Rules and a stdlib-only checker: no build or runtime dependencies.
+# The list is therefore short and covers what a checkout accumulates rather than
+# what a build produces.
+
+# Editor and OS cruft.
+.DS_Store
+Thumbs.db
+*~
+*.swp
+*.swo
+
+# Python bytecode, from any tooling run against this tree.
+__pycache__/
+*.py[cod]
