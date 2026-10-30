@@ -59,6 +59,7 @@ the standard file set.
 | `technical-specification.md` | Normative. Requirements, budgets, traceability matrix |
 | `architecture.md` | How the implementation works. Descriptive, not normative |
 | `usage-guide.md` | Practical use of the public surface |
+| `future-work.md` | Deferred work, one entry per deferral (`EN-03.7`) |
 | `deviations.md` | Standing deviations from the coding standard (`EN-00.5`) |
 | `deviation-budget.txt` | The per-language ceilings the ratchet holds (`EN-00.6`) |
 | `requirement-prefixes.txt` | The pinned ID prefix set (`EN-02.4`) |
@@ -70,7 +71,8 @@ the standard file set.
 Collapsing them produces a document where a reader cannot tell a commitment from
 a description of how something happens to work today, and the descriptive
 sentence gets implemented against as though it were specified. What is merely
-planned is not in this set at all — see EN-03.7.
+planned does not belong in the normative or descriptive files; it is recorded
+in `future-work.md` — see EN-03.7.
 
 **Enforcement.** review.
 **Deviation.** permitted with record.
@@ -118,25 +120,38 @@ reconstructed by hand to be used, usually losing formatting.
 **Enforcement.** review.
 **Deviation.** never.
 
-## EN-03.7 — A deferral lives in the tracker, not in the tree
+## EN-03.7 — A deferral is a `docs/future-work.md` entry, cited by its ID
 
-**Statement.** Work deliberately not done must be recorded as an issue in the
-project's tracker. Where the tree needs to acknowledge it — a `DEFER` note, a
-requirement that stops short, a document explaining an absence — it carries the
-issue reference and nothing else. The rationale, the blocking condition and the
-cost live in the issue.
+**Statement.** Work deliberately not done must be recorded as an entry in the
+project's `docs/future-work.md`. Each entry has a stable ID, `FW-<n>`. IDs are
+append-only: an ID is never renumbered or reused, and an entry that is built or
+dropped is removed without its ID being reused. Each entry has exactly these
+five headings, in this order: `What is absent`, `Why it is not built`,
+`What would have to be true to build it`, `Version cost`, and
+`Affected repositories`.
 
-The issue reference resolves within the repository containing the deferral.
+Where the tree acknowledges a deferral — a `DEFER` note, a requirement that
+stops short, a document explaining an absence — it carries the entry ID and
+nothing else. The reasoning lives in the entry. A reference to another
+repository's entry takes the form `<repository> FW-<n>`.
 
-**Rationale.** A tracker keeps the rationale, blocking condition and cost in
-one place. Review follows each reference and checks that the issue exists,
-remains open and describes the work deliberately absent from the tree.
+The issue tracker holds defects only.
+
+**Rationale.** An entry in the tree is versioned with the requirement it
+qualifies, so a reader of a pinned revision sees the deferral and its reasoning
+together. An issue lives outside that revision and can be closed, moved or lost
+without the tree changing. Append-only IDs keep every citation resolvable: a
+reused ID would point an existing citation at a different deferral without any
+visible change. Restricting the tracker to defects keeps its open items a list
+of things that are broken.
 
 **Enforcement.** review.
 **Deviation.** permitted.
 
-**Mechanism.** Review checks the reference and issue state in the repository
-tracker, and that the rationale stays in the issue.
+**Mechanism.** Review follows each `FW-<n>` reference to its heading in
+`docs/future-work.md`, checks that the entry has the five headings in order,
+checks that no ID was renumbered or reused, and checks that the issue tracker
+holds no deferred work.
 
 ## EN-03.8 — A link between documents resolves
 

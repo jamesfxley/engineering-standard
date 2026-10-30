@@ -37,9 +37,10 @@ a claim about reality, so name something that exists.
 
 ## Proposing rather than writing
 
-Open an issue. A disagreement with an existing rule is more useful as an issue
-than as a pull request — the rationale field is where the argument actually is,
-and changing it is a bigger thing than changing the statement.
+Open a pull request that changes the rule's rationale, and its statement only
+if the argument needs it. The rationale field is where the argument actually
+is, and review of the pull request is where it is settled. Issues report
+defects only (`EN-03.7`).
 
 ## Consumers
 

@@ -135,8 +135,8 @@ change after the root commit comes from a squash-merged pull request.
 ## EN-07.6 — An issue title states the fact, not its type
 
 **Statement.** An issue title must state the observable fact, in the present
-tense, with no bracketed or prefixed classification. A deferral's title names
-what is absent.
+tense, with no bracketed or prefixed classification. Every issue reports a
+defect and carries the label `defect`, the one label this standard defines.
 
 **Rationale.** The classification is already the issue's label, where it is
 filterable and can be corrected without rewriting the title. Repeating it in the
