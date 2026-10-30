@@ -1,7 +1,7 @@
 ---
 name: A rule is wrong
 about: A rule states something untrue, or claims an enforcement that does not hold
-labels: bug
+labels: defect
 ---
 
 ## Which rule
