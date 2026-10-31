@@ -122,62 +122,68 @@ reconstructed by hand to be used, usually losing formatting.
 
 ## EN-03.7 — A deferral is a `docs/future-work.md` entry, cited by its ID
 
-**Statement.** Every project has a `docs/future-work.md`; one with no deferrals
-says so. Work deliberately not done must be recorded there as an entry. This
-includes a stated limitation and an evidence gap: a claim not yet measured or
-observed, which the documentation presents as unconfirmed. A defect is
-something wrong now: a crash or hang, behaviour the specification or
-documentation does not permit, or a statement in the code or documentation that
-is untrue, including an unmeasured claim presented as established. An absence
-that nothing documents is a deferral. The issue tracker holds defects only; an
-issue opened for anything else is closed with a pointer to a future-work entry
-or a pull request.
+**Statement.** Work deliberately not done is a deferral. That includes a stated
+limitation and an evidence gap: a claim not yet measured or observed, which the
+documentation presents as unconfirmed. A defect is something wrong now: a crash
+or hang the specification does not call for, other behaviour the specification
+or documentation does not permit, or a statement in the code or documentation
+that is untrue, including an unmeasured claim presented as established. Every
+project keeps its deferrals in `docs/future-work.md`, which says so when it
+has none. The issue tracker holds defects only.
 
 Each entry is a heading `## FW-<n> — <title>` followed by exactly these five
-`###` headings, in this order: `What is absent`, `Why it is not built`,
-`What would have to be true to build it`, `Version cost`, and
-`Affected repositories`. `Version cost` names the version component, major,
-minor or patch, that building it would increment. `Affected repositories` names
-every repository the work touches, this one included. IDs run from `FW-1` without gaps and are never
-renumbered or reused. An entry that is built or dropped keeps its heading as
-`## FW-<n> — Built` or `## FW-<n> — Dropped`, with one line saying what
-replaced it or why, in place of its five headings; the project's own citations
-of it are removed in the same change.
+`###` headings, in this order:
+
+- `What is absent`.
+- `Why it is not built`.
+- `What would have to be true to build it`.
+- `Version cost`: whether building it would be additive, compatible or breaking
+  for consumers.
+- `Affected repositories`: every repository the work touches, this one first,
+  each other one with its entry ID where it has one.
+
+IDs run from `FW-1` without gaps and are never renumbered or reused. An entry
+that is built or dropped is replaced by a stub, `## FW-<n> — Built` or
+`## FW-<n> — Dropped`, and one line saying what replaced it or why. The same
+change removes the project's own citations of it.
 
 Where the tree acknowledges a deferral — a `DEFER` note, a requirement that
 stops short, a specification statement of what is out of scope, a document
 explaining an absence — it carries the entry ID and at most a phrase naming
 what is absent. The reasoning lives in the entry.
 
-Work that spans several repositories has one entry in each of them that is
-under this standard. A citation of
-another repository's entry is qualified with that repository's name, for
-example `codec:FW-2`, and resolves against that repository's default branch.
-Each entry's `Affected repositories` cites every partner entry that exists when
-the entry is added or next changed.
+Work that spans several repositories under this standard has an entry in each.
+A citation of another repository's entry takes the form `<repository>:FW-<n>`,
+for example `codec:FW-2`, and resolves against that repository's default
+branch. When an entry is added, each partner entry that already exists gains a
+citation of it, through a change to the partner's repository opened together
+with the adding change.
 
 **Rationale.** An entry in the tree is versioned with the requirement it
 qualifies, so a reader of a pinned revision sees the deferral and its reasoning
 together. An issue lives outside that revision and can be closed, moved or lost
 without the tree changing. Gapless IDs with stubs keep every citation
 resolvable, including one from another repository that still names a built
-entry, and make a removed or reused ID visible in the file itself rather than
-only in history. Restricting the tracker to defects keeps its open items a list
-of things that are broken.
+entry, and make a removed or reused ID visible in the file itself. A deferral
+is not a contract, so another repository's entry is read at its current state
+rather than at a pinned version. Only repositories under this standard can be
+required to carry an entry. Restricting the tracker to defects keeps its open
+items a list of things that are broken.
 
 **Enforcement.** review.
 **Deviation.** never.
 
-**Mechanism.** Review of a change checks that `docs/future-work.md` exists,
-that its IDs run from `FW-1` without gaps, that each entry has the five
-headings in order with the content above or is a stub, and that no ID was
-renumbered or reused against the base revision. It follows each `FW-<n>`
-citation the change adds or touches to its heading, a qualified one on the
-cited repository's default branch; checks that no citation in the project
-names a stub; checks that each acknowledgement carries the ID and no
-reasoning; and, for each entry the change adds or touches, checks that the
-existing partner entries are cited. Review of each newly opened issue checks
-that it reports a defect.
+**Mechanism.** Review of a change reads `docs/future-work.md` and checks that
+it exists and that its IDs run from `FW-1` without gaps. For each entry the
+change adds or alters, it checks the heading form and the five headings, or the
+stub form, and that no ID was renumbered or reused against the base revision.
+For an added entry, it checks that a change citing it is open or merged in each
+partner repository that has an entry. For a new stub, it checks that the
+project's citations of that ID are removed. For each acknowledgement or
+citation the change adds, it checks that the ID resolves and that no reasoning
+is copied beside it. Review of each newly opened issue, and of the open issues
+before each release, closes any that does not report a defect, with a pointer
+to a future-work entry or a pull request.
 
 ## EN-03.8 — A link between documents resolves
 

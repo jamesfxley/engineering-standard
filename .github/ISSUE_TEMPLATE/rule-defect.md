@@ -16,6 +16,7 @@ One of:
 - **The enforcement column is wrong.** It names a tool, script or gate that does
   not exist, does not run, or does not catch what the row claims. Say which.
 - **It contradicts another rule.** Name both.
+- **The rationale states something untrue.** Quote it.
 
 ## What you think it should say
 

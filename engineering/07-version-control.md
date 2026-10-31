@@ -136,7 +136,8 @@ change after the root commit comes from a squash-merged pull request.
 
 **Statement.** An issue title must state the observable fact, in the present
 tense, with no bracketed or prefixed classification. Every open issue carries
-the label `defect`. This standard defines no other label.
+the label `defect`. This standard defines no other label; labels a hosting
+service adds by default are outside it.
 
 **Rationale.** The tracker holds defects only (`EN-03.7`), so a type in the
 title carries no information, and the one label marks each issue as a defect
@@ -152,9 +153,9 @@ it survives in the tracker long after the diagnosis is known to be wrong.
 **Enforcement.** review.
 **Deviation.** never.
 
-**Mechanism.** Review of each newly opened issue checks its title, adds the
-label `defect` where it is missing, and closes an issue that does not report a
-defect (`EN-03.7`).
+**Mechanism.** Review of each newly opened issue, and of the open issues
+before each release, edits a title that names a type or a suspected cause so
+that it states the fact, and adds the label `defect` where it is missing.
 
 ## EN-07.7 — A release is a tag named `v<semver>`
 
