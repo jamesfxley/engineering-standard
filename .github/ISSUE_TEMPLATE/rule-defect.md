@@ -13,8 +13,6 @@ The ID, e.g. `EN-01.3` or `CXX-13.1`.
 One of:
 
 - **The statement is untrue**, or is true only under conditions it does not name.
-- **The rationale does not support the statement** — the reason given would
-  justify a different rule, or no rule.
 - **The enforcement column is wrong.** It names a tool, script or gate that does
   not exist, does not run, or does not catch what the row claims. Say which.
 - **It contradicts another rule.** Name both.

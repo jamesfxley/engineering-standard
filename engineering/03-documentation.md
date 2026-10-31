@@ -126,17 +126,19 @@ reconstructed by hand to be used, usually losing formatting.
 says so. Work deliberately not done must be recorded there as an entry. This
 includes a stated limitation and an evidence gap: a claim not yet measured or
 observed, which the documentation presents as unconfirmed. A defect is
-something wrong now: behaviour that is incorrect, or a statement in the code or
-documentation that is untrue, including an unmeasured claim presented as
-established. The issue tracker holds defects only; an issue opened for anything
-else is closed with a pointer to a future-work entry or a pull request.
+something wrong now: a crash or hang, behaviour the specification or
+documentation does not permit, or a statement in the code or documentation that
+is untrue, including an unmeasured claim presented as established. An absence
+that nothing documents is a deferral. The issue tracker holds defects only; an
+issue opened for anything else is closed with a pointer to a future-work entry
+or a pull request.
 
 Each entry is a heading `## FW-<n> — <title>` followed by exactly these five
 `###` headings, in this order: `What is absent`, `Why it is not built`,
 `What would have to be true to build it`, `Version cost`, and
-`Affected repositories`. `Version cost` names the release that building it
-would need under `EN-06.1`. `Affected repositories` names every repository the
-work touches, this one included. IDs run from `FW-1` without gaps and are never
+`Affected repositories`. `Version cost` names the version component, major,
+minor or patch, that building it would increment. `Affected repositories` names
+every repository the work touches, this one included. IDs run from `FW-1` without gaps and are never
 renumbered or reused. An entry that is built or dropped keeps its heading as
 `## FW-<n> — Built` or `## FW-<n> — Dropped`, with one line saying what
 replaced it or why, in place of its five headings; the project's own citations
@@ -147,11 +149,12 @@ stops short, a specification statement of what is out of scope, a document
 explaining an absence — it carries the entry ID and at most a phrase naming
 what is absent. The reasoning lives in the entry.
 
-Work that spans several repositories has one entry in each. A citation of
+Work that spans several repositories has one entry in each of them that is
+under this standard. A citation of
 another repository's entry is qualified with that repository's name, for
 example `codec:FW-2`, and resolves against that repository's default branch.
-Each entry's `Affected repositories` cites every partner entry that has landed;
-an entry that lands first gains its citations in a later change.
+Each entry's `Affected repositories` cites every partner entry that exists when
+the entry is added or next changed.
 
 **Rationale.** An entry in the tree is versioned with the requirement it
 qualifies, so a reader of a pinned revision sees the deferral and its reasoning
@@ -167,11 +170,14 @@ of things that are broken.
 
 **Mechanism.** Review of a change checks that `docs/future-work.md` exists,
 that its IDs run from `FW-1` without gaps, that each entry has the five
-headings in order or is a stub, and that no ID was renumbered or reused against
-the base revision. It follows each `FW-<n>` citation to its heading, a
-qualified one on the cited repository's default branch, and checks that each
-landed partner entry is cited. Triage of a newly opened issue checks that it
-reports a defect.
+headings in order with the content above or is a stub, and that no ID was
+renumbered or reused against the base revision. It follows each `FW-<n>`
+citation the change adds or touches to its heading, a qualified one on the
+cited repository's default branch; checks that no citation in the project
+names a stub; checks that each acknowledgement carries the ID and no
+reasoning; and, for each entry the change adds or touches, checks that the
+existing partner entries are cited. Review of each newly opened issue checks
+that it reports a defect.
 
 ## EN-03.8 — A link between documents resolves
 

@@ -37,10 +37,11 @@ a claim about reality, so name something that exists.
 
 ## Proposing a rule or a change to one
 
-Open a pull request. To change an existing rule, change its rationale, and its
-statement only if the argument needs it: the rationale field is where the
-argument actually is, and review of the pull request is where it is settled. A
-new rule supplies all four fields. Issues report defects only (`EN-03.7`).
+Open a pull request. To change an existing rule, start with its rationale,
+and change the other fields only as far as the argument needs: the rationale
+field is where the argument actually is, and review of the pull request is
+where it is settled. A rationale that does not support its statement is argued
+this way too. Issues report defects only (`EN-03.7`).
 
 ## Consumers
 
