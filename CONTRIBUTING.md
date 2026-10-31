@@ -35,12 +35,12 @@ a claim about reality, so name something that exists.
   code, tests and documents. If nothing in any repository would cite the rule you
   are adding, say in the pull request what would.
 
-## Proposing rather than writing
+## Proposing a rule or a change to one
 
-Open a pull request that changes the rule's rationale, and its statement only
-if the argument needs it. The rationale field is where the argument actually
-is, and review of the pull request is where it is settled. Issues report
-defects only (`EN-03.7`).
+Open a pull request. To change an existing rule, change its rationale, and its
+statement only if the argument needs it: the rationale field is where the
+argument actually is, and review of the pull request is where it is settled. A
+new rule supplies all four fields. Issues report defects only (`EN-03.7`).
 
 ## Consumers
 

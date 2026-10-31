@@ -135,9 +135,8 @@ change after the root commit comes from a squash-merged pull request.
 ## EN-07.6 — An issue title states the fact, and the issue is labelled `defect`
 
 **Statement.** An issue title must state the observable fact, in the present
-tense, with no bracketed or prefixed classification. Every issue carries the
-label `defect`. This standard defines no other label, and no label may classify
-an issue as anything but a defect.
+tense, with no bracketed or prefixed classification. An issue is opened with
+the label `defect`. This standard defines no other label.
 
 **Rationale.** The tracker holds defects only (`EN-03.7`), so a type in the
 title carries no information, and the one label marks each issue as a defect
