@@ -59,7 +59,7 @@ the standard file set.
 | `technical-specification.md` | Normative. Requirements, budgets, traceability matrix |
 | `architecture.md` | How the implementation works. Descriptive, not normative |
 | `usage-guide.md` | Practical use of the public surface |
-| `future-work.md` | Deferred work, one entry per deferral (`EN-03.7`) |
+| `future-work.md` | Deferred work, one entry per deferral; always present (`EN-03.7`) |
 | `deviations.md` | Standing deviations from the coding standard (`EN-00.5`) |
 | `deviation-budget.txt` | The per-language ceilings the ratchet holds (`EN-00.6`) |
 | `requirement-prefixes.txt` | The pinned ID prefix set (`EN-02.4`) |
@@ -122,36 +122,51 @@ reconstructed by hand to be used, usually losing formatting.
 
 ## EN-03.7 — A deferral is a `docs/future-work.md` entry, cited by its ID
 
-**Statement.** Work deliberately not done must be recorded as an entry in the
-project's `docs/future-work.md`. Each entry has a stable ID, `FW-<n>`. IDs are
-append-only: an ID is never renumbered or reused, and an entry that is built or
-dropped is removed without its ID being reused. Each entry has exactly these
-five headings, in this order: `What is absent`, `Why it is not built`,
+**Statement.** Every project has a `docs/future-work.md`; one with no deferrals
+says so. Work deliberately not done must be recorded there as an entry. This
+includes a stated limitation and an evidence gap: a claim not yet measured or
+observed. Something wrong in the code or documentation now, because it
+contradicts the specification, the documentation or this standard, is a defect
+rather than a deferral, and the issue tracker holds defects only.
+
+Each entry is a heading `## FW-<n> — <title>` followed by exactly these five
+`###` headings, in this order: `What is absent`, `Why it is not built`,
 `What would have to be true to build it`, `Version cost`, and
-`Affected repositories`.
+`Affected repositories`. IDs run from `FW-1` without gaps and are never
+renumbered or reused. An entry that is built or dropped keeps its heading as
+`## FW-<n> — Built` or `## FW-<n> — Dropped`, with one line saying what
+replaced it or why, in place of its five headings; the project's own citations
+of it are removed in the same change.
 
-Where the tree acknowledges a deferral — a `DEFER` note, a requirement that
-stops short, a document explaining an absence — it carries the entry ID and
-nothing else. The reasoning lives in the entry. A reference to another
-repository's entry takes the form `<repository> FW-<n>`.
+Where the tree acknowledges a deferral — a `DEFER` note, a requirement or
+specification scope row that stops short, a document explaining an absence — it
+carries the entry ID and at most a phrase naming what is absent. The reasoning
+lives in the entry.
 
-The issue tracker holds defects only.
+Work that spans several projects has one entry in each, and each entry's
+`Affected repositories` cites the others. A citation of another project's entry
+is qualified as `EN-02.8` qualifies a requirement, for example `codec:FW-2`. It
+resolves against the version of that project the citing project uses, or
+against that project's latest release where the citing project does not use it.
 
 **Rationale.** An entry in the tree is versioned with the requirement it
 qualifies, so a reader of a pinned revision sees the deferral and its reasoning
 together. An issue lives outside that revision and can be closed, moved or lost
-without the tree changing. Append-only IDs keep every citation resolvable: a
-reused ID would point an existing citation at a different deferral without any
-visible change. Restricting the tracker to defects keeps its open items a list
-of things that are broken.
+without the tree changing. Gapless IDs with stubs keep every citation
+resolvable, including one from another project that still names a built entry,
+and make a removed or reused ID visible in the file itself rather than only in
+history. Restricting the tracker to defects keeps its open items a list of
+things that are broken.
 
 **Enforcement.** review.
 **Deviation.** permitted.
 
-**Mechanism.** Review follows each `FW-<n>` reference to its heading in
-`docs/future-work.md`, checks that the entry has the five headings in order,
-checks that no ID was renumbered or reused, and checks that the issue tracker
-holds no deferred work.
+**Mechanism.** Review checks that `docs/future-work.md` exists, that its IDs run
+from `FW-1` without gaps, that each entry has the five headings in order or is
+a stub, and that no ID was renumbered or reused against the base revision. It
+follows each `FW-<n>` citation, local or qualified, to its heading, checks that
+a cross-project entry cites its partners, and checks that every open issue
+reports a defect.
 
 ## EN-03.8 — A link between documents resolves
 

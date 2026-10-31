@@ -65,5 +65,5 @@ Concrete diagnostic names and check boundaries are in each clause.
 | EN-07.3 — A commit body argues the change | — | — | review |
 | EN-07.4 — A commit message carries no trailers | gate:commits (full) | — | — |
 | EN-07.5 — `main` advances only by squash merge | — | — | review |
-| EN-07.6 — An issue title states the fact, not its type | — | — | review |
+| EN-07.6 — An issue title states the fact, and the issue is labelled `defect` | — | — | review |
 | EN-07.7 — A release is a tag named `v<semver>` | — | — | review |
