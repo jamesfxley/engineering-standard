@@ -101,13 +101,17 @@ put metadata.
 **Deviation.** never.
 
 **Mechanism.** The commit-message hook and the commits range check refuse
-trailer and attribution lines, tool footers and issue references.
+trailer and attribution lines, tool footers and issue references, apart from
+the squash suffix `EN-07.5` permits.
 
 ## EN-07.5 — `main` advances only by squash merge
 
 **Statement.** The default branch must be protected, and must advance only by
 squash-merging a pull request. Each merge lands one commit, whose subject is the
-pull request's title and is therefore governed by `EN-07.2`. Commits on a branch
+pull request's title and is therefore governed by `EN-07.2`. The subject may end
+with the pull request number the hosting service appends, ` (#<n>)`; that suffix
+is not part of the subject under `EN-07.2` and is not an issue reference under
+`EN-07.4`. Commits on a branch
 are working state, but their subjects and trailers are still checked under
 `EN-07.2` and `EN-07.4`. The root commit that creates the repository is
 pushed before protection exists; it is the one commit that does not arrive by
