@@ -48,7 +48,7 @@ The rationale includes the argument against the rule where one exists.
 | [04-testing.md](engineering/04-testing.md) | What to test, seams, what to fake |
 | [05-ci-shape.md](engineering/05-ci-shape.md) | Workflow structure and required jobs |
 | [06-release-and-versioning.md](engineering/06-release-and-versioning.md) | Version bumps, public API changes, release mechanics |
-| [07-version-control.md](engineering/07-version-control.md) | Branch names, commit and issue form, merge and tag policy |
+| [07-version-control.md](engineering/07-version-control.md) | Branch names, commit and issue form, pull request verification, merge and tag policy |
 | [enforcement-matrix.md](engineering/enforcement-matrix.md) | Declared coverage of the engineering rules |
 
 ### `cxx/` — `CXX-*`

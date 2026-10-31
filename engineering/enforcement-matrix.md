@@ -67,3 +67,4 @@ Concrete diagnostic names and check boundaries are in each clause.
 | EN-07.5 — `main` advances only by squash merge | — | — | review |
 | EN-07.6 — An issue title states the fact, and the issue is labelled `defect` | — | — | review |
 | EN-07.7 — A release is a tag named `v<semver>` | — | — | review |
+| EN-07.8 — A pull request states its verification by level | — | — | review |
