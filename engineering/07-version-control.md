@@ -136,8 +136,8 @@ change after the root commit comes from a squash-merged pull request.
 
 **Statement.** An issue title must state the observable fact, in the present
 tense, with no bracketed or prefixed classification. Every open issue carries
-the label `defect`. This standard defines no other label; labels a hosting
-service adds by default are outside it.
+the label `defect`. This standard defines no other label; an issue may also
+carry labels the standard does not define.
 
 **Rationale.** The tracker holds defects only (`EN-03.7`), so a type in the
 title carries no information, and the one label marks each issue as a defect

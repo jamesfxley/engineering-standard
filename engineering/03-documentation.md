@@ -122,8 +122,8 @@ reconstructed by hand to be used, usually losing formatting.
 
 ## EN-03.7 — A deferral is a `docs/future-work.md` entry, cited by its ID
 
-**Statement.** Work deliberately not done is a deferral. That includes a stated
-limitation and an evidence gap: a claim not yet measured or observed, which the
+**Statement.** Work deliberately not done, but which may still be built, is a
+deferral. That includes a stated limitation and an evidence gap: a claim not yet measured or observed, which the
 documentation presents as unconfirmed. A defect is something wrong now: a crash
 or hang the specification does not call for, other behaviour the specification
 or documentation does not permit, or a statement in the code or documentation
@@ -137,15 +137,17 @@ Each entry is a heading `## FW-<n> — <title>` followed by exactly these five
 - `What is absent`.
 - `Why it is not built`.
 - `What would have to be true to build it`.
-- `Version cost`: whether building it would be additive, compatible or breaking
-  for consumers.
+- `Version cost`: whether building it would be a breaking change under
+  `EN-06.1`.
 - `Affected repositories`: every repository the work touches, this one first,
   each other one with its entry ID where it has one.
 
 IDs run from `FW-1` without gaps and are never renumbered or reused. An entry
 that is built or dropped is replaced by a stub, `## FW-<n> — Built` or
 `## FW-<n> — Dropped`, and one line saying what replaced it or why. The same
-change removes the project's own citations of it.
+change removes the project's own citations of it. Dropped work is no longer
+intended, so a statement of what is out of scope that remains is a scope
+decision rather than a deferral.
 
 Where the tree acknowledges a deferral — a `DEFER` note, a requirement that
 stops short, a specification statement of what is out of scope, a document
@@ -154,10 +156,11 @@ what is absent. The reasoning lives in the entry.
 
 Work that spans several repositories under this standard has an entry in each.
 A citation of another repository's entry takes the form `<repository>:FW-<n>`,
-for example `codec:FW-2`, and resolves against that repository's default
-branch. When an entry is added, each partner entry that already exists gains a
-citation of it, through a change to the partner's repository opened together
-with the adding change.
+for example `net-stack:FW-2`, and resolves against that repository's default
+branch. When an entry is added, each other affected repository under this
+standard gains a citation of it, in its existing partner entry or in a new one,
+through a change opened together with the adding change. The adding change
+merges first, so each partner change's citation resolves when it merges.
 
 **Rationale.** An entry in the tree is versioned with the requirement it
 qualifies, so a reader of a pinned revision sees the deferral and its reasoning
@@ -178,10 +181,11 @@ it exists and that its IDs run from `FW-1` without gaps. For each entry the
 change adds or alters, it checks the heading form and the five headings, or the
 stub form, and that no ID was renumbered or reused against the base revision.
 For an added entry, it checks that a change citing it is open or merged in each
-partner repository that has an entry. For a new stub, it checks that the
+other affected repository under this standard. For a new stub, it checks that the
 project's citations of that ID are removed. For each acknowledgement or
-citation the change adds, it checks that the ID resolves and that no reasoning
-is copied beside it. Review of each newly opened issue, and of the open issues
+citation the change adds, it checks that the ID resolves, a qualified one on
+the cited repository's default branch, and that no reasoning is copied beside
+it. Review of each newly opened issue, and of the open issues
 before each release, closes any that does not report a defect, with a pointer
 to a future-work entry or a pull request.
 
