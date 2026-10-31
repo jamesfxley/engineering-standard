@@ -23,7 +23,7 @@ deviations, gates, traceability, documentation, testing, CI, releases and
 version control. Where an enforcement field needs a concrete mechanism, it names
 the C++ binding, the one bound language.
 
-`PY-` and `RS-` are reserved.
+`PY-` and `RS-` are reserved for unwritten tiers (FW-1).
 
 ## Rule format
 

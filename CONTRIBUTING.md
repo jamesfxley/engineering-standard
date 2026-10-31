@@ -35,11 +35,13 @@ a claim about reality, so name something that exists.
   code, tests and documents. If nothing in any repository would cite the rule you
   are adding, say in the pull request what would.
 
-## Proposing rather than writing
+## Proposing a rule or a change to one
 
-Open an issue. A disagreement with an existing rule is more useful as an issue
-than as a pull request — the rationale field is where the argument actually is,
-and changing it is a bigger thing than changing the statement.
+Open a pull request. To change an existing rule, start with its rationale,
+and change the other fields only as far as the argument needs: the rationale
+field is where the argument actually is, and review of the pull request is
+where it is settled. A rationale that does not support its statement is argued
+this way too. Issues report defects only (`EN-03.7`).
 
 ## Consumers
 

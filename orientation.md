@@ -1,7 +1,7 @@
 # Engineering standard
 
 The `engineering/` tier defines language-independent `EN-` rules. The `cxx/`
-tier adds C++ `CXX-` rules. `PY-` and `RS-` are reserved, unwritten tiers.
+tier adds C++ `CXX-` rules. `PY-` and `RS-` are reserved, unwritten tiers (FW-1).
 
 `engineering/00-conformance.md` defines the rule format. `README.md` defines
 the gate-name contract.

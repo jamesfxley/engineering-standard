@@ -132,16 +132,19 @@ squash commit still carries the final argument for the reviewed change.
 **Mechanism.** Review verifies branch protection and that each default-branch
 change after the root commit comes from a squash-merged pull request.
 
-## EN-07.6 — An issue title states the fact, not its type
+## EN-07.6 — An issue title states the fact, and the issue is labelled `defect`
 
 **Statement.** An issue title must state the observable fact, in the present
-tense, with no bracketed or prefixed classification. A deferral's title names
-what is absent.
+tense, with no bracketed or prefixed classification. Every open issue carries
+the label `defect`. This standard defines no other label; an issue may also
+carry labels the standard does not define.
 
-**Rationale.** The classification is already the issue's label, where it is
-filterable and can be corrected without rewriting the title. Repeating it in the
-title is the same duplication `EN-07.2` rejects in a commit subject, and it
-costs the first several characters of every line in a list view.
+**Rationale.** The tracker holds defects only (`EN-03.7`), so a type in the
+title carries no information, and the one label marks each issue as a defect
+report where it is filterable, next to whatever labels a hosting service adds
+by default. Repeating a classification in the title is the same duplication
+`EN-07.2` rejects in a commit subject, and it costs the first several characters
+of every line in a list view.
 
 Stating the fact rather than the suspected cause matters more than the format
 does: a title naming a cause is a diagnosis made before the investigation, and
@@ -149,6 +152,10 @@ it survives in the tracker long after the diagnosis is known to be wrong.
 
 **Enforcement.** review.
 **Deviation.** never.
+
+**Mechanism.** Review of each newly opened issue, and of the open issues
+before each release, edits a title that names a type or a suspected cause so
+that it states the fact, and adds the label `defect` where it is missing.
 
 ## EN-07.7 — A release is a tag named `v<semver>`
 

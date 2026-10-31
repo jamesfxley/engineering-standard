@@ -45,7 +45,8 @@ citation point at a *different requirement* that reads as plausible.
 
 **Statement.** IDs must be a two-letter prefix and a number, where the prefix
 names the class of requirement. The prefix set must be pinned in
-`docs/requirement-prefixes.txt`.
+`docs/requirement-prefixes.txt`. `FW` names future-work entries (`EN-03.7`)
+and is not a requirement prefix.
 
 **Rationale.** The prefix makes a citation self-describing at the point of use:
 seeing `AR-1` in a comment tells you it is an architecture/resource guarantee

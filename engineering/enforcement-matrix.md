@@ -36,7 +36,7 @@ Concrete diagnostic names and check boundaries are in each clause.
 | EN-03.4 — Generate the API reference from the source | — | gate:api-docs (partial) | review |
 | EN-03.5 — Examples in documentation are compiled | — | — | build (ctest); review |
 | EN-03.6 — Markdown destined elsewhere goes in a fenced block | — | — | review |
-| EN-03.7 — A deferral lives in the tracker, not in the tree | — | — | review |
+| EN-03.7 — A deferral is a `docs/future-work.md` entry, cited by its ID | — | — | review |
 | EN-03.8 — A link between documents resolves | gate:doc-links (full) | — | — |
 | EN-04.1 — One seam per platform dependency, with a fake behind it | — | — | review |
 | EN-04.2 — Tests cite the requirement they establish | — | — | review |
@@ -65,5 +65,5 @@ Concrete diagnostic names and check boundaries are in each clause.
 | EN-07.3 — A commit body argues the change | — | — | review |
 | EN-07.4 — A commit message carries no trailers | gate:commits (full) | — | — |
 | EN-07.5 — `main` advances only by squash merge | — | — | review |
-| EN-07.6 — An issue title states the fact, not its type | — | — | review |
+| EN-07.6 — An issue title states the fact, and the issue is labelled `defect` | — | — | review |
 | EN-07.7 — A release is a tag named `v<semver>` | — | — | review |

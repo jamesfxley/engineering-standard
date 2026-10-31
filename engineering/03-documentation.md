@@ -59,6 +59,7 @@ the standard file set.
 | `technical-specification.md` | Normative. Requirements, budgets, traceability matrix |
 | `architecture.md` | How the implementation works. Descriptive, not normative |
 | `usage-guide.md` | Practical use of the public surface |
+| `future-work.md` | Deferred work, one entry per deferral; always present (`EN-03.7`) |
 | `deviations.md` | Standing deviations from the coding standard (`EN-00.5`) |
 | `deviation-budget.txt` | The per-language ceilings the ratchet holds (`EN-00.6`) |
 | `requirement-prefixes.txt` | The pinned ID prefix set (`EN-02.4`) |
@@ -70,7 +71,8 @@ the standard file set.
 Collapsing them produces a document where a reader cannot tell a commitment from
 a description of how something happens to work today, and the descriptive
 sentence gets implemented against as though it were specified. What is merely
-planned is not in this set at all — see EN-03.7.
+planned does not belong in the normative or descriptive files; it is recorded
+in `future-work.md` — see EN-03.7.
 
 **Enforcement.** review.
 **Deviation.** permitted with record.
@@ -118,25 +120,74 @@ reconstructed by hand to be used, usually losing formatting.
 **Enforcement.** review.
 **Deviation.** never.
 
-## EN-03.7 — A deferral lives in the tracker, not in the tree
+## EN-03.7 — A deferral is a `docs/future-work.md` entry, cited by its ID
 
-**Statement.** Work deliberately not done must be recorded as an issue in the
-project's tracker. Where the tree needs to acknowledge it — a `DEFER` note, a
-requirement that stops short, a document explaining an absence — it carries the
-issue reference and nothing else. The rationale, the blocking condition and the
-cost live in the issue.
+**Statement.** Work deliberately not done, but which may still be built, is a
+deferral. That includes a stated limitation and an evidence gap: a claim not yet measured or observed, which the
+documentation presents as unconfirmed. A defect is something wrong now: a crash
+or hang the specification does not call for, other behaviour the specification
+or documentation does not permit, or a statement in the code or documentation
+that is untrue, including an unmeasured claim presented as established. Every
+project keeps its deferrals in `docs/future-work.md`, which says so when it
+has none. The issue tracker holds defects only.
 
-The issue reference resolves within the repository containing the deferral.
+Each entry is a heading `## FW-<n> — <title>` followed by exactly these five
+`###` headings, in this order:
 
-**Rationale.** A tracker keeps the rationale, blocking condition and cost in
-one place. Review follows each reference and checks that the issue exists,
-remains open and describes the work deliberately absent from the tree.
+- `What is absent`.
+- `Why it is not built`.
+- `What would have to be true to build it`.
+- `Version cost`: whether building it would be a breaking change under
+  `EN-06.1`.
+- `Affected repositories`: every repository the work touches, this one first,
+  each other one with its entry ID where it has one.
+
+IDs run from `FW-1` without gaps and are never renumbered or reused. An entry
+that is built or dropped is replaced by a stub, `## FW-<n> — Built` or
+`## FW-<n> — Dropped`, and one line saying what replaced it or why. The same
+change removes the project's own citations of it. Dropped work is no longer
+intended, so a statement of what is out of scope that remains is a scope
+decision rather than a deferral.
+
+Where the tree acknowledges a deferral — a `DEFER` note, a requirement that
+stops short, a specification statement of what is out of scope, a document
+explaining an absence — it carries the entry ID and at most a phrase naming
+what is absent. The reasoning lives in the entry.
+
+Work that spans several repositories under this standard has an entry in each.
+A citation of another repository's entry takes the form `<repository>:FW-<n>`,
+for example `net-stack:FW-2`, and resolves against that repository's default
+branch. When an entry is added, each other affected repository under this
+standard gains a citation of it, in its existing partner entry or in a new one,
+through a change opened together with the adding change. The adding change
+merges first, so each partner change's citation resolves when it merges.
+
+**Rationale.** An entry in the tree is versioned with the requirement it
+qualifies, so a reader of a pinned revision sees the deferral and its reasoning
+together. An issue lives outside that revision and can be closed, moved or lost
+without the tree changing. Gapless IDs with stubs keep every citation
+resolvable, including one from another repository that still names a built
+entry, and make a removed or reused ID visible in the file itself. A deferral
+is not a contract, so another repository's entry is read at its current state
+rather than at a pinned version. Only repositories under this standard can be
+required to carry an entry. Restricting the tracker to defects keeps its open
+items a list of things that are broken.
 
 **Enforcement.** review.
-**Deviation.** permitted.
+**Deviation.** never.
 
-**Mechanism.** Review checks the reference and issue state in the repository
-tracker, and that the rationale stays in the issue.
+**Mechanism.** Review of a change reads `docs/future-work.md` and checks that
+it exists and that its IDs run from `FW-1` without gaps. For each entry the
+change adds or alters, it checks the heading form and the five headings, or the
+stub form, and that no ID was renumbered or reused against the base revision.
+For an added entry, it checks that a change citing it is open or merged in each
+other affected repository under this standard. For a new stub, it checks that the
+project's citations of that ID are removed. For each acknowledgement or
+citation the change adds, it checks that the ID resolves, a qualified one on
+the cited repository's default branch, and that no reasoning is copied beside
+it. Review of each newly opened issue, and of the open issues
+before each release, closes any that does not report a defect, with a pointer
+to a future-work entry or a pull request.
 
 ## EN-03.8 — A link between documents resolves
 
