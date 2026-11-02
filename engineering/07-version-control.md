@@ -180,3 +180,30 @@ by content if there is a name that never moves.
 
 **Enforcement.** review.
 **Deviation.** never.
+
+## EN-07.8 — A pull request states its verification by level
+
+**Statement.** A pull request description must state, for each verification
+level the repository has, what was run against the final state of the change
+and the result lines it printed. The levels are host (the gates and tests),
+target build (the targets built) and device (the board, the image's source
+commit, the commands and the result per requirement ID). A level that was not
+run must be stated as not run, with the reason and the behaviour it leaves
+unverified. A repository that builds for no target states the host level only.
+
+**Rationale.** An omitted level reads as either passed or irrelevant, and a
+reviewer cannot tell which. `EN-06.6` refuses a claim of validation without a
+run, but an omission makes no claim, so nothing catches it. A change to code
+that only runs on the target then merges on host evidence, and the gap shows
+up later as a defect on `main` that has to be searched for across every change
+since the last device run. Stating each level, run or not, puts the question
+to the author when it costs least to answer, and gives the reviewer a fact to
+check rather than an absence to notice. Quoting the printed result rather
+than writing "passed" lets the reviewer check `EN-01.8` from the description.
+
+**Enforcement.** review.
+**Deviation.** never.
+
+**Mechanism.** Review reads the description against the change. A level
+missing from the description, a level stated without its result lines, and a
+change to target code whose device level is absent are findings.

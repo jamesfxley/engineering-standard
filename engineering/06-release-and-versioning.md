@@ -92,8 +92,8 @@ a silent size or ABI mismatch.
 ## EN-06.6 — Never claim hardware validation without a device run
 
 **Statement.** A statement that behaviour is hardware-validated must be backed
-by a run on the target. Host tests, a cross-compile and a static gate are the
-pre-merge minimum, and they are not validation.
+by a run on the target. Host tests, a cross-compile and a static gate are not
+validation; `EN-06.9` sets what a change to target code needs before merge.
 
 **Rationale.** The classes of defect that only appear on target — timing,
 interrupt context, memory pressure, peripheral behaviour — are exactly the ones
@@ -136,3 +136,47 @@ that follows the convention.
 
 **Mechanism.** The `spdx` gate for C and C++ sources under an MIT licence;
 review otherwise.
+
+## EN-06.9 — Target code passes its device tests before merge
+
+**Statement.** A change to code compiled only for a target must pass, on that
+target and before merge, the device tests that cover the changed code. A
+requirement the change adds or alters whose behaviour a host test cannot
+establish must gain a device test in the same change. A device test runs on
+the target and reports pass or fail per requirement ID with an exit status;
+it measures nothing.
+
+**Rationale.** Peripheral bring-up, refusal paths, interrupt context and reset
+are the behaviours a host suite cannot reach, and they are what target-only
+code exists to do. Deferred to the release run, a failure in them lands on
+`main` and blocks the release, and its cause has to be searched for across
+every target change since the last passing run, one flash per step. Run
+before merge, the same failure lands on the one change that caused it, and
+`main` stays good. A device test is deterministic and takes minutes, so its
+cost per change is small; measurement is kept out of it so that a verdict
+never depends on a threshold that moves with the board or the bench.
+
+**Enforcement.** review.
+**Deviation.** never.
+
+**Mechanism.** The pull request's device level under `EN-07.8` names the
+board, the image's source commit, the commands and the result per
+requirement ID; review checks that the cases cover the changed code and each
+added or altered requirement.
+
+## EN-06.10 — A change that risks a measured figure runs its benchmarks before merge
+
+**Statement.** A change that claims a performance figure, or that alters code
+on a path whose figure the specification gates, must run the benchmarks that
+measure that figure before merge and record the result with its conditions
+(`EN-06.7`). Every benchmark runs before a release (`EN-06.5`).
+
+**Rationale.** A benchmark regression is often the sum of several small
+changes, so it is caught at the release run against the last baseline, where
+the comparison is cheapest. A change that targets a figure, or touches the
+path behind one, is where a single large regression is most likely, and
+running its benchmarks then attributes the regression to its change without
+a search.
+
+**Enforcement.** review.
+**Deviation.** never.

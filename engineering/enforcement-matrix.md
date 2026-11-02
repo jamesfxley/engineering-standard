@@ -60,6 +60,8 @@ Concrete diagnostic names and check boundaries are in each clause.
 | EN-06.6 — Never claim hardware validation without a device run | — | — | review |
 | EN-06.7 — A run record carries its conditions | — | — | review |
 | EN-06.8 — Every source file names its licence | — | gate:spdx (partial) | review |
+| EN-06.9 — Target code passes its device tests before merge | — | — | review |
+| EN-06.10 — A change that risks a measured figure runs its benchmarks before merge | — | — | review |
 | EN-07.1 — A branch names its issue | — | — | review |
 | EN-07.2 — A commit subject names the area it changes | — | gate:commits (partial) | review |
 | EN-07.3 — A commit body argues the change | — | — | review |
@@ -67,3 +69,4 @@ Concrete diagnostic names and check boundaries are in each clause.
 | EN-07.5 — `main` advances only by squash merge | — | — | review |
 | EN-07.6 — An issue title states the fact, and the issue is labelled `defect` | — | — | review |
 | EN-07.7 — A release is a tag named `v<semver>` | — | — | review |
+| EN-07.8 — A pull request states its verification by level | — | — | review |
