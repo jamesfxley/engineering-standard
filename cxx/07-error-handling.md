@@ -6,13 +6,13 @@
 consistent. A library that may be consumed on a target without exception support
 must not require them on any path.
 
-**Rationale.** Mixing strategies means every call site has to handle both, which
-in practice means it handles neither. The decision is driven by the target: a
-freestanding build commonly disables exceptions and RTTI, so a library that
-throws is simply unusable there.
+**Rationale.** Mixed strategies require callers to handle both exceptions and
+error returns, making omissions likely. Freestanding builds commonly disable
+exceptions and run-time type information (RTTI), making a throwing library
+unusable.
 
-Where exceptions are unavailable, `Result<T>`-style returns with `[[nodiscard]]`
-are the consistent pattern.
+Without exceptions, `Result<T>`-style returns with `[[nodiscard]]` provide a
+consistent strategy.
 
 **Enforcement.** compiler (-fno-exceptions), review.
 **Deviation.** never.
@@ -25,30 +25,23 @@ are the consistent pattern.
 rejected with the correct error. It must not be truncated, clamped, or silently
 partially accepted.
 
-Diagnostic text a program emits about itself — a log message, a trace
-annotation — is not input in this sense. It may be shortened to fit a fixed
-buffer, on two conditions: every cut is marked in the emitted text itself, so a
-reader can see the text is incomplete, and no cut removes a field a reader or a
-parser locates the text by, such as a severity or a source line number.
+Diagnostic text a program emits about itself, such as logs and trace
+annotations, is outside this input rule. It may be shortened to fit a fixed
+buffer if each cut is marked in the emitted text. Each cut retains every field used to locate the
+text, such as severity or source line number.
 
-**Rationale.** This is the most important rule in this chapter. Truncation
-produces a value that passes every subsequent check and is wrong — a record cut
-to fit, a sequence accepted in part, a lookup key stored short so it names
-something else. The failure surfaces far from the cause, disguised as something else.
+**Rationale.** Truncation can produce an incorrect value that passes later
+checks. A shortened record, partially accepted sequence or shortened lookup key
+can fail far from the original input.
 
-Diagnostic text is carved out because the alternative is worse for the same
-reason: rejecting an overlong log line discards the whole diagnostic, and a
-visible cut marker is exactly what keeps a shortened line from passing as
-complete. A marked cut is observable (`CXX-07.6`); an unmarked one is not.
+Discarding an overlong diagnostic loses the entire message. A visible cut
+marker preserves useful text without presenting it as complete (CXX-07.6).
 
-The correct error is part of the requirement. Where a protocol defines a status
-for the condition, use that one: an invalid record length is not the same
-failure as a checksum mismatch, and reporting either as a generic error loses
-information the caller needs.
-
+Where the protocol defines a status for the condition, use it. An invalid
+length and a checksum mismatch carry different information for the caller.
 Rejection carries whatever the protocol requires to leave the peer in a defined
-state — the correct status and a connection-close indication where the framing
-can no longer be trusted.
+state, including a connection-close indication when framing can no longer be
+trusted.
 
 **Enforcement.** build (ctest -fsanitize=fuzzer), review.
 **Deviation.** never.
@@ -61,12 +54,9 @@ can no longer be trusted.
 specification forbids, the tolerance must be justified by a citation to the
 governing document, recorded in the project's specification.
 
-**Rationale.** Tolerances accumulate. Each one is individually reasonable and
-collectively they mean the implementation accepts a dialect nobody has written
-down — and the tolerance becomes a compatibility obligation nobody chose.
-
-Requiring the citation forces the question of whether the specification permits
-the tolerance, and often it does not.
+**Rationale.** Undocumented tolerances accumulate into a dialect and create
+compatibility obligations. A citation establishes whether the governing
+specification permits each tolerance.
 
 **Enforcement.** review.
 **Deviation.** never.
@@ -79,12 +69,9 @@ the tolerance, and often it does not.
 logged-and-continued where continuing is not valid, or converted to a default
 value.
 
-**Rationale.** `catch (...) {}` and an ignored return code are the same defect.
-The system continues in a state its author did not consider, which is where
-corruption comes from.
-
-Logging is not handling. A log line and a continue is only correct where
-continuing is genuinely valid.
+**Rationale.** An empty `catch (...) {}` and an ignored error return both let
+the system continue in an unhandled state, risking corruption. Logging alone
+handles no error; continuing after a log is correct only when continuing is valid.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** never.
@@ -96,9 +83,9 @@ continuing is genuinely valid.
 
 **Statement.** A destructor must not throw. Move operations should be `noexcept`.
 
-**Rationale.** A throwing destructor during stack unwinding terminates the
-program. A non-`noexcept` move means standard containers silently fall back to
-copying on reallocation — a large performance change with no diagnostic.
+**Rationale.** A destructor that throws during stack unwinding terminates the
+program. A move that is not `noexcept` can make standard containers copy during
+reallocation, changing performance without a diagnostic.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** never.
@@ -111,10 +98,9 @@ copying on reallocation — a large performance change with no diagnostic.
 **Statement.** A rejection or an internal failure must increment a counter or
 otherwise be observable, so its rate can be measured in a running system.
 
-**Rationale.** A correctly-rejected malformed request and a systematic
-misparsing of valid input look identical from outside. A counter is what
-distinguishes them, and it is the only way to notice the second case before a
-user reports it.
+**Rationale.** Correct rejection of malformed requests and systematic
+misparsing of valid input can look alike from outside. Observable failure rates let maintainers identify the
+second case before users report it.
 
 **Enforcement.** review.
 **Deviation.** permitted.

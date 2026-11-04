@@ -6,13 +6,13 @@
 `reinterpret_cast` or `std::bit_cast` as appropriate, and prefer the weakest
 that works.
 
-**Rationale.** A C cast silently selects whichever of those it needs, including
-`const_cast` and `reinterpret_cast`. The reader cannot tell which, and neither
-can a grep — so the dangerous casts become unfindable.
+**Rationale.** A C-style cast can remove `const` or reinterpret a type without
+showing which conversion it performs. Named casts expose those operations and
+make them searchable.
 
-`std::bit_cast` is the correct tool for reinterpreting an object
-representation. Accessing an object through a pointer `reinterpret_cast` to an
-unrelated type is undefined behaviour that usually appears to work.
+`std::bit_cast` reinterprets an object representation. Access through a
+pointer cast to an unrelated type is undefined behaviour even when it appears
+to work.
 
 **Enforcement.** gate:lint (partial), compiler (-Wold-style-cast), review.
 **Deviation.** never.
@@ -27,10 +27,9 @@ out-of-bounds access, use after free or after move, strict-aliasing violation,
 shift by an amount at or beyond the operand width, misaligned access, reading an
 indeterminate value.
 
-**Rationale.** The optimiser is entitled to assume undefined behaviour does not
-occur, so the consequence is not a wrong answer at the site — it is the compiler
-deleting a bounds check *somewhere else* because the only path reaching it was
-undefined. This is why "it works" is not evidence.
+**Rationale.** The optimiser assumes undefined behaviour does not occur. It
+can therefore delete a bounds check elsewhere if the only path to it has
+undefined behaviour. An apparently correct result does not establish validity.
 
 **Enforcement.** build (-fsanitize=undefined), gate:lint (partial), review.
 **Deviation.** never.
@@ -44,9 +43,9 @@ undefined. This is why "it works" is not evidence.
 promotion. A shift or multiply that can exceed the result type's range must be
 performed in a wide enough type, chosen explicitly.
 
-**Rationale.** `uint16_t a = 0xFFFF; a * a` is computed in `int` and overflows —
-signed overflow, undefined. The promotion rules are surprising precisely where
-wire-format code lives.
+**Rationale.** `uint16_t a = 0xFFFF; a * a` is computed in `int` and overflows,
+causing undefined behaviour. These promotion rules particularly affect
+wire-format code.
 
 **Enforcement.** gate:lint (partial), compiler (-Wconversion), review.
 **Deviation.** never.
@@ -60,9 +59,8 @@ wire-format code lives.
 size, a capacity constant, or an explicit iteration limit. A loop whose
 termination depends on external input must carry an independent limit.
 
-**Rationale.** An unbounded loop driven by input is a denial of service. On a
-constrained target with no scheduler it is a hang, and there is nothing to
-recover it.
+**Rationale.** An input-driven loop without a bound permits denial of service.
+On a constrained target without a scheduler, it can hang without recovery.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** never for input-driven loops.
@@ -75,9 +73,9 @@ recover it.
 compile-time constant. On a constrained target, recursion must not be used at
 all (`CXX-11.3`).
 
-**Rationale.** Recursion converts input size into stack depth. Without a
-guard page — which many freestanding targets lack — the failure mode is
-silent corruption of whatever sits below the stack, not a crash.
+**Rationale.** Recursion converts input size into stack depth. Freestanding
+targets often lack guard pages, so a stack overflow can corrupt adjacent memory
+without a crash.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** permitted with record on a hosted target
@@ -92,12 +90,11 @@ granted at review.
 **Statement.** A `switch` over an `enum class` must handle every enumerator, and
 should omit `default` so that adding an enumerator produces a diagnostic.
 
-**Rationale.** A `default` that silently absorbs a new enumerator is how a new
-state gets handled as though it were an old one. Omitting it turns the next
-addition into a compile error listing every site that needs attention.
+**Rationale.** A `default` can handle a new enumerator as though it were an
+old one. Omitting it exposes affected switches when the enumerator is added.
 
-Where a value may legitimately arrive out of range — a decoded wire value — that
-is not an enumeration yet; validate it into one first (`CXX-12.2`).
+Validate potentially out-of-range values, such as decoded wire values, before
+converting them to an enumeration (CXX-12.2).
 
 **Enforcement.** compiler (-Wswitch), gate:lint (partial), review.
 **Deviation.** permitted with record.
@@ -110,8 +107,8 @@ default is genuinely needed.
 **Statement.** A `switch` case that falls through must be marked
 `[[fallthrough]]`.
 
-**Rationale.** Unmarked fallthrough is far more often a missing `break` than an
-intention, and the two are indistinguishable on reading.
+**Rationale.** Readers cannot distinguish intentional unmarked fallthrough
+from a missing `break`.
 
 **Enforcement.** compiler (-Wimplicit-fallthrough), review.
 **Deviation.** never.
@@ -123,9 +120,9 @@ intention, and the two are indistinguishable on reading.
 **Statement.** Conditions on non-boolean values must compare explicitly. Do not
 rely on implicit conversion of a pointer or integer to `bool`.
 
-**Rationale.** `if (count)` and `if (ptr)` read identically and mean different
-things, and `if (count)` in particular hides an unintended assignment or a
-signedness bug that `if (count > 0)` would expose.
+**Rationale.** `if (count)` and `if (ptr)` hide different tests behind the
+same syntax. An explicit comparison such as `if (count > 0)` can expose an
+assignment or signedness error.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** permitted.
