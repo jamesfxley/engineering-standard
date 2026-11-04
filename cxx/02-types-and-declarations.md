@@ -36,8 +36,8 @@ external API's own types.
 
 ## CXX-02.3 — No implicit narrowing
 
-**Statement.** A narrowing conversion must be explicit, and must be preceded by
-a check that the value fits — or be provably in range at that point.
+**Statement.** A narrowing conversion must be explicit. It must be preceded by a
+check that the value fits, unless the value is provably in range at that point.
 
 **Rationale.** Truncating a `std::size_t` to `std::uint16_t` can produce a
 plausible small value that passes later bounds checks. Mixing signed and

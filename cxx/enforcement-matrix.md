@@ -12,7 +12,7 @@ Concrete diagnostic names and check boundaries are in each clause.
 | CXX-00.4 — Do not trust `clang-tidy --fix` | — | — | review |
 | CXX-00.5 — New files must be tracked before formatting | — | gate:format (partial) | review |
 | CXX-00.6 — A translation unit missing from the compile database is not linted | gate:compile-db (full) | — | — |
-| CXX-01.1 — `#pragma once`, on line 1 | — | — | review |
+| CXX-01.1 — `#pragma once`, after the licence line | — | — | review |
 | CXX-01.2 — Identifier case | — | gate:lint (partial) | review |
 | CXX-01.3 — Names say what, not how | — | gate:lint (partial) | review |
 | CXX-01.4 — Include order | — | gate:format (partial); gate:lint (partial) | review |

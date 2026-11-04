@@ -1,9 +1,10 @@
 # CXX-01 — Lexical structure and naming
 
-## CXX-01.1 — `#pragma once`, on line 1
+## CXX-01.1 — `#pragma once`, after the licence line
 
-**Statement.** Every header must begin with `#pragma once` on its first line. An
-`#ifndef` include guard must not be used. A file-level comment goes after the pragma.
+**Statement.** In every header, `#pragma once` must be the first line after the
+SPDX licence identifier EN-06.8 requires. An `#ifndef` include guard must not be
+used. Any other file-level comment goes after the pragma.
 
 **Rationale.** Every supported compiler recognises `#pragma once`. Include
 guards require names to be maintained when headers move or are renamed. Duplicate

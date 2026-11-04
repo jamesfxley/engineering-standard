@@ -8,9 +8,9 @@ and independent wording of these rules.
 
 ## CXX-11.1 — No allocation after initialisation
 
-**Statement.** On the steady-state paths, no heap allocation must occur after the
-start or begin call. Initialisation-time allocation is permitted and budgeted
-separately.
+**Statement.** Heap allocation must not occur on a steady-state path after
+initialisation completes. Allocation during initialisation is permitted and
+budgeted separately.
 
 **Rationale.** Constrained targets often lack a memory management unit (MMU),
 swap or a way to recover from allocation failure. Fragmentation can eventually make a previously
