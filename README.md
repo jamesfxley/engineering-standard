@@ -91,7 +91,7 @@ machine-checked. Security checks use `bugprone-*` and the static analyser.
 Google's language restrictions reflect its internal history and are not adopted. Naming and
 include guards follow
 [CXX-01.2](cxx/01-lexical-and-naming.md#cxx-012--identifier-case) and
-[CXX-01.1](cxx/01-lexical-and-naming.md#cxx-011--pragma-once-on-line-1).
+[CXX-01.1](cxx/01-lexical-and-naming.md#cxx-011--pragma-once-after-the-licence-line).
 Google uses `CamelCase` functions, `kConstantName` constants and `#ifndef`
 include guards. The linked rules explain this standard's choices.
 [CXX-13](cxx/13-repository-layout.md) defines the repository layout.
@@ -120,8 +120,10 @@ governs rule citations in source code.
 [EN-02.2](engineering/02-spec-and-traceability.md#en-022--cite-the-id-never-a-section-number)
 governs requirement citations.
 
+A requirement ID in a comment is a trailing tag after the sentence it supports:
+
 ```cpp
-// CXX-06.3: the span does not own the buffer, so the caller outlives it.
+// The span does not own the buffer; the caller keeps it alive (AR-2).
 ```
 
 | Where | Form |
