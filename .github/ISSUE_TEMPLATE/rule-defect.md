@@ -6,18 +6,18 @@ labels: defect
 
 ## Which rule
 
-The ID, e.g. `EN-01.3` or `CXX-13.1`.
+This is the affected rule’s ID, for example `EN-01.3` or `CXX-13.1`.
 
 ## What is wrong
 
-One of:
+The defect is one of the following:
 
-- **The statement is untrue**, or is true only under conditions it does not name.
-- **The enforcement column is wrong.** It names a tool, script or gate that does
-  not exist, does not run, or does not catch what the row claims. Say which.
-- **It contradicts another rule.** Name both.
-- **The rationale states something untrue.** Quote it.
+- The statement is untrue or omits conditions under which it is true.
+- The enforcement names a tool, script or gate that does not exist, does not run
+  or does not catch the claimed violation. Say which.
+- The rule contradicts another rule. Name both.
+- The rationale states something untrue. Quote it.
 
 ## What you think it should say
 
-Not required, but the fastest route to a fix.
+A suggested correction is optional and helps resolve the defect.

@@ -7,17 +7,13 @@ Breaking changes land only at a major version bump, or, while the major
 version is 0, at a minor version bump. While the major version is 0, every other
 change bumps the patch.
 
-**Rationale.** The version is a promise to consumers about what upgrading costs.
-A break in a release whose number does not announce it makes every version
-number uninformative, and the next upgrade is then approached as though it might
-break — which costs more than the break did.
+**Rationale.** Version numbers tell consumers whether an upgrade can break
+compatibility. An unannounced break makes future upgrades harder to assess.
 
-Semantic versioning itself promises nothing below 1.0.0: anything may change at
-any time. Read that way, every 0.x upgrade has to be treated as a possible
-break, and a compatibility check that compares the major alone accepts any
-0.x release at all. Treating the 0.x minor as the major keeps the promise for a
-project that is not yet stable, and lets a check refuse the break mechanically.
-1.0.0 then means something of its own: that the surface is stable.
+Semantic versioning makes no compatibility promise below 1.0.0. Comparing only
+the major version would therefore accept any 0.x release. Treating the 0.x minor
+version as the breaking component lets consumers check compatibility
+mechanically. Version 1.0.0 declares the public surface stable.
 
 **Enforcement.** review.
 **Deviation.** never.
@@ -29,13 +25,10 @@ constants, its version must be declared in both and asserted by a test. All
 three change in one commit. A repository with neither is identified by its
 release tag (EN-07.7).
 
-**Rationale.** Where present, the build definition and the code constants are two independent
-copies, and independent copies drift. A consumer reading the constant then gets
-a different answer from the package metadata, which is the kind of defect that
-surfaces as an inexplicable conditional-compilation bug months later.
-
-The test is what makes this real rather than a convention: it is impossible to
-bump one and forget the others, because the suite goes red immediately.
+**Rationale.** Build metadata and code constants can drift when changed
+separately. Consumers then see different versions depending on which they read,
+which can cause conditional-compilation defects. A test exposes disagreement
+as soon as one declaration changes.
 
 **Enforcement.** build (version test where applicable), review.
 **Deviation.** never.
@@ -47,22 +40,16 @@ review otherwise.
 
 **Statement.** A release must carry notes, written at the tag. Each breaking
 entry must state what a consumer has to change in their code, not only what
-changed in this project. Notes may be generated from the merged changes, except
-the breaking entries, which are written.
+changed in this project. Non-breaking notes may be generated from merged
+changes. Breaking entries are written by hand.
 
-**Rationale.** The reader is someone deciding whether and how to upgrade.
-"`Queue::append` now returns `Result<T>`" tells them something changed; "check the
-result — appending to a full queue reports failure and leaves its contents
-unchanged" tells them what to do and why it matters. The second takes a
-sentence more and saves an afternoon. Generation cannot produce that sentence,
-which is why the breaking entries are the half that stays hand-written.
+**Rationale.** Consumers need instructions for upgrading. Saying that
+`Queue::append` returns `Result<T>` identifies a change. Telling consumers to
+check the result because a full queue rejects an append and retains its contents
+explains how to respond. Generated notes cannot supply those instructions.
 
-Writing them at the tag rather than maintaining a document between tags is
-deliberate. A file carrying an unreleased section has to be kept current by
-every change, is enforced by nothing, and is therefore the document most
-reliably found stale — a project can pass every gate it has while its changelog
-sits many releases behind its tree. Notes written once, at the moment the
-version becomes real, have no interval in which to drift.
+Writing notes at the tag avoids maintaining an unreleased section throughout
+development. Such a section can become stale while every gate still passes.
 
 **Enforcement.** review.
 **Deviation.** never.
@@ -79,10 +66,9 @@ Dependency resolution belongs to the consuming build configuration.
 supported build configuration, and any hardware-dependent claim must be
 re-validated on the target.
 
-**Rationale.** A configuration that is not tested is not supported, whatever the
-documentation says. Compile-time configuration in particular fails
-asymmetrically: the default configuration passes and an alternative one produces
-a silent size or ABI mismatch.
+**Rationale.** An untested configuration can fail despite a passing default
+build. Compile-time alternatives can cause size or ABI mismatches without a
+diagnostic.
 
 **Enforcement.** gate:synced-files (partial), review.
 **Deviation.** never.
@@ -95,10 +81,9 @@ a silent size or ABI mismatch.
 by a run on the target. Host tests, a cross-compile and a static gate are not
 validation; `EN-06.9` sets what a change to target code needs before merge.
 
-**Rationale.** The classes of defect that only appear on target — timing,
-interrupt context, memory pressure, peripheral behaviour — are exactly the ones
-a host suite cannot reach. Recording them as validated makes the record worse
-than absent, because it stops anyone checking.
+**Rationale.** Host tests cannot establish target timing, interrupt behaviour,
+memory pressure or peripheral behaviour. Marking them as validated discourages
+the device run that could detect a defect.
 
 **Enforcement.** review.
 **Deviation.** never.
@@ -109,10 +94,8 @@ than absent, because it stops anyone checking.
 it: build type, target, configuration, date, and anything that changes the
 result.
 
-**Rationale.** A measurement without conditions cannot be compared with the next
-one, which is the only thing measurements are for. Build type alone can move a
-result several-fold, and can decide whether an instrumented measurement was
-possible at all.
+**Rationale.** Conditions make measurements comparable. Build type alone can
+change a result several-fold or determine whether instrumentation is possible.
 
 **Enforcement.** review.
 **Deviation.** never.
@@ -123,13 +106,9 @@ possible at all.
 identifier as its first line, in the machine-readable form
 `SPDX-License-Identifier: <id>`, matching the repository's `LICENSE`.
 
-**Rationale.** The root `LICENSE` governs the work, so the identifier changes
-nothing legally. What it changes is what travels. The file is the unit that gets
-lifted — a header dropped into somebody else's tree arrives with no trace of
-where it came from or what terms came with it, and the root licence it was
-governed by stays behind. The fixed spelling rather than a sentence saying the
-same thing is what makes it readable by SPDX tooling and every licence scanner
-that follows the convention.
+**Rationale.** A source file can be copied without the root licence. An SPDX
+identifier carries the licensing information with it without changing the legal
+terms. Its fixed spelling lets licence scanners read it.
 
 **Enforcement.** gate:spdx (partial), review.
 **Deviation.** never.
@@ -146,15 +125,14 @@ establish must gain a device test in the same change. A device test runs on
 the target and reports pass or fail per requirement ID with an exit status;
 it measures nothing.
 
-**Rationale.** Peripheral bring-up, refusal paths, interrupt context and reset
-are the behaviours a host suite cannot reach, and they are what target-only
-code exists to do. Deferred to the release run, a failure in them lands on
-`main` and blocks the release, and its cause has to be searched for across
-every target change since the last passing run, one flash per step. Run
-before merge, the same failure lands on the one change that caused it, and
-`main` stays good. A device test is deterministic and takes minutes, so its
-cost per change is small; measurement is kept out of it so that a verdict
-never depends on a threshold that moves with the board or the bench.
+**Rationale.** Host tests cannot reach target-only behaviour such as
+peripheral bring-up, error paths, interrupt context and reset. Finding a failure
+before merge attributes it to one change and keeps the default branch passing.
+Waiting for a release can require searching many changes, with a flash at each
+step.
+
+Device tests are deterministic and take minutes. Keeping measurements separate
+prevents verdicts from depending on thresholds that vary with the board or bench.
 
 **Enforcement.** review.
 **Deviation.** never.
@@ -171,12 +149,10 @@ on a path whose figure the specification gates, must run the benchmarks that
 measure that figure before merge and record the result with its conditions
 (`EN-06.7`). Every benchmark runs before a release (`EN-06.5`).
 
-**Rationale.** A benchmark regression is often the sum of several small
-changes, so it is caught at the release run against the last baseline, where
-the comparison is cheapest. A change that targets a figure, or touches the
-path behind one, is where a single large regression is most likely, and
-running its benchmarks then attributes the regression to its change without
-a search.
+**Rationale.** Small regressions can accumulate across changes, so a release
+run compares them with the previous baseline. A change that claims a figure or
+alters its path is more likely to cause a large regression. Running the relevant
+benchmarks before merge attributes that regression to the change.
 
 **Enforcement.** review.
 **Deviation.** never.

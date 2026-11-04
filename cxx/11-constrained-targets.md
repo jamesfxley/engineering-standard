@@ -1,9 +1,10 @@
 # CXX-11 — Constrained targets
 
-Applies to freestanding, embedded, real-time and fixed-capacity work. This is
-the restricted subset: rules that are advice elsewhere and requirements here.
+This chapter applies to freestanding, embedded, real-time and fixed-capacity
+work. Its restricted subset makes some advice for other targets mandatory here.
 
-Written from the underlying engineering reasons. No MISRA text is reproduced.
+[Attribution](../engineering/00-conformance.md#attribution) explains the sources
+and independent wording of these rules.
 
 ## CXX-11.1 — No allocation after initialisation
 
@@ -11,15 +12,13 @@ Written from the underlying engineering reasons. No MISRA text is reproduced.
 start or begin call. Initialisation-time allocation is permitted and budgeted
 separately.
 
-**Rationale.** There is often no MMU or swap, and nothing to recover an
-allocation failure. Fragmentation on a long-running system eventually fails a
-request that succeeded a million times, at a point with no sensible handler.
-Splitting the two pools makes the commitment testable rather than aspirational:
-a counter that must read zero after startup, and a heap watermark that must stop
-growing.
+**Rationale.** Constrained targets often lack a memory management unit (MMU),
+swap or a way to recover from allocation failure. Fragmentation can eventually make a previously
+successful request fail. Separate initialisation and steady-state budgets allow
+tests to require zero allocations and a stable heap watermark after startup.
 
-The corollary is that capacity failures surface as errors (`CXX-07.2`), because
-growing is not an option.
+Capacity failures therefore surface as errors under CXX-07.2 because storage
+cannot grow.
 
 **Enforcement.** build (ctest), review.
 **Deviation.** never.
@@ -28,17 +27,13 @@ growing is not an option.
 
 ## CXX-11.2 — Static sizes come from a compile-time profile
 
-**Statement.** Every static size must derive from a named compile-time profile
-rather than a scattered literal, and every profile invariant must be bound by
-`static_assert` to whatever configuration it must agree with.
+**Statement.** Every static size must derive from a named compile-time profile.
+Every profile invariant must be bound by `static_assert` to whatever
+configuration it must agree with.
 
-**Rationale.** Sizes that must agree and live in different files diverge. The
-binding assertion is what makes a new knob safe to add — without it, the next
-configuration change leaves one of the pair behind and produces a buffer sized
-for a window nobody advertises.
-
-The profile must reach consumers correctly; see `CXX-10.3`, which is the failure
-mode this rule most often meets.
+**Rationale.** Sizes in different files can drift. Binding assertions expose
+a configuration change that leaves a buffer sized for a different window.
+The profile must also reach consumers as CXX-10.3 requires.
 
 **Enforcement.** compiler (static_assert), gate:consumer (partial), review.
 **Deviation.** never.
@@ -50,10 +45,9 @@ mode this rule most often meets.
 **Statement.** Recursion must not be used. Convert to iteration with an explicit
 bound, or to an explicit stack of fixed capacity.
 
-**Rationale.** Recursion converts input size into stack depth, and there is
-often no guard page. Overflow silently corrupts whatever is below the stack —
-often the heap or another task's data — and the crash is somewhere else
-entirely, minutes later.
+**Rationale.** Recursion converts input size into stack depth. Without a guard
+page, overflow can corrupt the heap or another task's data. The crash can occur
+much later and elsewhere.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** never.
@@ -66,10 +60,9 @@ entirely, minutes later.
 stack depth must be understood, and anything sizeable must be static storage or
 a caller-provided buffer.
 
-**Rationale.** The stack is small — often kilobytes — and shares its address
-space with everything else. A multi-kilobyte local looks harmless and is a
-silent overflow on the deepest call path, which is usually the error path nobody
-tested.
+**Rationale.** A stack of a few kilobytes shares its address space with other
+data. A large local buffer can overflow it on the deepest call path, often an
+untested error path.
 
 **Enforcement.** gate:footprint (partial), review.
 **Deviation.** never.
@@ -82,10 +75,9 @@ tested.
 them. A library intended for such consumers must compile and function with both
 disabled.
 
-**Rationale.** Beyond the code-size cost, a `throw` on a build with exceptions
-disabled terminates. A library that throws on its error path is unusable, and
-this is discovered by the consumer rather than by its own tests unless a
-compile-smoke build enforces it.
+**Rationale.** Exceptions add code size. Throwing with exceptions disabled
+terminates the program. A compile-smoke build exposes an unusable library error
+path before a consumer encounters it.
 
 **Enforcement.** compiler (-fno-exceptions -fno-rtti), review.
 **Deviation.** never.
@@ -97,12 +89,11 @@ compile-smoke build enforces it.
 **Statement.** A project producing a firmware image must have a static RAM
 budget, enforced in CI against the linked artefact.
 
-**Rationale.** Static footprint grows a few hundred bytes at a time and nobody
-notices until a link fails or a stack has nowhere left to go. A gate turns each
-increment into a decision.
+**Rationale.** Small increases in static RAM use can accumulate until linking
+fails or the stack has no room. A gate exposes each increase.
 
-State the gate in the specification; keep the measured value in the run record
-(`EN-03.2`).
+State the gate in the specification and keep measurements in run records
+under EN-03.2.
 
 **Enforcement.** gate:footprint (full).
 **Deviation.** permitted with record.
@@ -116,14 +107,14 @@ configuration.
 with a fake implementation in the project's testing module. Only the platform
 adapter may touch registers.
 
-**Rationale.** `EN-04.1`, and it matters most here: without it, nothing is
-testable without the board, so the suite is slow, serialised on one piece of
-hardware, and eventually not run.
+**Rationale.** The interface permits host tests under EN-04.1. Without it,
+tests depend on the board and compete for one device, making them slow and less
+likely to run.
 
-A specific trap: the fake and the real adapter must agree on the *contract*, not
-just the signature. An adapter that returns an error for an idle bus where the
-contract says success will wedge or fault a drain loop — and the fake, written to
-the contract, will never show it.
+The fake and real adapter must share the contract as well as the signature.
+For example, an adapter returning an error for an idle bus when the contract
+requires success can hang or fault a drain loop. A fake following the contract
+will not expose that adapter defect.
 
 **Enforcement.** review.
 **Deviation.** permitted with record.
@@ -136,10 +127,9 @@ the contract, will never show it.
 upper case, you must check that no platform or vendor header defines it as a
 macro.
 
-**Rationale.** Vendor headers define macros with names like `STATIC`, `MIN`,
-`ERROR` and `INTERFACE`. The collision does not appear on a host build — only on
-the cross build, as a syntax error somewhere the name is used, with no
-indication that a macro is responsible.
+**Rationale.** Vendor headers define macros such as `STATIC`, `MIN`, `ERROR`
+and `INTERFACE`. A collision can appear only during cross-compilation as a
+syntax error at a use of the identifier, without identifying the macro.
 
 **Enforcement.** build (cross-compile), review.
 **Deviation.** never.

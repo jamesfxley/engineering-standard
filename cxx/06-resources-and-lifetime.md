@@ -6,13 +6,11 @@
 states the ownership. Raw `new` and `delete` must not appear outside a resource
 type's own implementation.
 
-**Rationale.** RAII makes the release path unconditional — it happens on every
-exit from the scope, including the ones nobody thought about. A raw
-`new`/`delete` pair requires every path between them to be correct, and the
-paths multiply.
-
-A raw pointer is then unambiguously non-owning, which is what makes it safe to
-pass around.
+**Rationale.** RAII means "resource acquisition is initialisation". It binds a
+resource's lifetime to its owner and releases the resource on every exit from
+the owner's scope.
+A raw `new`/`delete` pair requires each intervening path to release correctly.
+Expressing ownership in types leaves raw pointers unambiguously non-owning.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** permitted with record — an allocator test that overrides global
@@ -27,11 +25,9 @@ pass around.
 Exceeding capacity must be reported as an error (`CXX-07.2`), never accommodated
 by growing and never by truncating.
 
-**Rationale.** Fixed capacity makes the worst case the same as the typical case,
-so the resource question is answered at compile time rather than discovered
-under load. It is a hard requirement on a constrained target and good practice
-everywhere: a growable buffer fed by untrusted input is a memory-exhaustion
-vector.
+**Rationale.** Fixed capacity establishes worst-case resource use at compile
+time. On a constrained target it is required. On other targets, it prevents
+untrusted input from exhausting memory through a growing buffer.
 
 **Enforcement.** gate:footprint (partial), review.
 **Deviation.** permitted.
@@ -45,21 +41,20 @@ an explicit guard: a loop bound derived from the capacity, an early return on
 `index >= capacity`, or an index whose type makes out-of-range values
 unrepresentable.
 
-**Rationale.** This rule carries the weight that
-`cppcoreguidelines-pro-bounds-constant-array-index` would, because this standard
-rejects that check (`EN-00.7`) — its prescribed remedy is `gsl::at`, which
-reports failure by throwing and so cannot be used in a build without exceptions.
-The safety property still has to hold; it is enforced by review and by design
-rather than by the check.
+**Rationale.** This standard rejects
+`cppcoreguidelines-pro-bounds-constant-array-index` under EN-00.7 because its
+prescribed remedy, `gsl::at`, throws and cannot be used without exceptions.
+Review and design establish bounds safety in place of that check.
 
-Prefer making it structural: an index type with 256 representable values
-indexing a 256-entry table cannot be out of range, and needs no guard at all.
+Prefer making bounds safety structural: an index type with 256 representable
+values indexing a 256-entry table cannot be out of range and needs no further
+guard.
 
 **Enforcement.** build (-fsanitize=address), review.
 **Deviation.** never.
 
-**Mechanism.** review — on the review checklist. ASan in CI catches the failures
-that do occur.
+**Mechanism.** The review checklist covers capacity guards. AddressSanitizer
+(ASan) in CI detects out-of-bounds accesses that occur during tests.
 
 ## CXX-06.4 — No allocation on steady-state paths
 
@@ -67,10 +62,10 @@ that do occur.
 initialisation on the paths that run repeatedly. Initialisation-time allocation
 is budgeted separately.
 
-**Rationale.** Post-initialisation allocation on a long-running program is a
-fragmentation and latency source, and on a constrained target with no MMU it is
-an eventual hard failure with no recovery. Separating the two pools is what makes
-the commitment testable: a counter that must read zero after startup.
+**Rationale.** Repeated allocation can cause fragmentation and latency. On a
+constrained target without a memory management unit (MMU), allocation can
+eventually fail without recovery. Separating initialisation from repeated work
+allows a test to count allocations and require zero after startup.
 
 **Enforcement.** build (ctest), review.
 **Deviation.** permitted with record.
@@ -83,10 +78,10 @@ the commitment testable: a counter that must read zero after startup.
 the storage it refers to. Where one is stored in a member, the owning
 relationship must be documented at the declaration.
 
-**Rationale.** The compiler will not tell you. A view into a temporary is the
-canonical case — `std::string_view sv = get_string();` where `get_string`
-returns by value dangles immediately, and usually appears to work because the
-memory is still there.
+**Rationale.** Views can dangle without a compiler diagnostic. For example,
+`std::string_view sv = get_string();` dangles immediately if `get_string`
+returns a string by value. The storage can remain readable long enough to hide
+the defect.
 
 **Enforcement.** build (-fsanitize=address), gate:lint (partial), review.
 **Deviation.** never.
@@ -98,12 +93,11 @@ memory is still there.
 **Statement.** After moving from an object, it must not be read except to
 destroy or reassign it.
 
-**Rationale.** A moved-from object is in a valid but unspecified state. Reading
-it is not undefined behaviour, which is worse in practice — it produces a
-plausible wrong value rather than a crash.
+**Rationale.** A moved-from object has a valid but unspecified state. Reading
+it can produce a plausible wrong value without crashing.
 
-The subtle case is a forwarding reference invoked more than once: forwarding it
-on the first call moves from it and passes a moved-from object to the rest.
+Forwarding a reference more than once can move from it on the first call and
+pass the moved-from object on later calls.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** permitted with record,
@@ -117,13 +111,11 @@ for the multi-invocation forwarding case where forwarding would be wrong.
 **Statement.** Where a buffer is handed to a lower layer without copying, its
 storage must remain valid and unmodified until that layer signals it is done.
 
-**Rationale.** Zero-copy transmit is the usual case: the network stack keeps a
-pointer into the buffer until the data is acknowledged. Reusing the storage
-before then transmits whatever is now there — silent corruption on the wire that
-reproduces only under load.
+**Rationale.** A zero-copy network transmit can retain a buffer pointer until
+the data is acknowledged. Reusing the storage early changes what is transmitted
+and can cause corruption that appears only under load.
 
-This is why the ring or pool backing such a path is sized by in-flight data, not
-by message size.
+The backing ring or pool is therefore sized by in-flight data, not message size.
 
 **Enforcement.** review.
 **Deviation.** never.

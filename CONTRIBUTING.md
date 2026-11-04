@@ -1,51 +1,45 @@
 # Contributing
 
 This repository defines engineering rules, language tiers and the enforcement
-contract. Run `python3 check.py` (`py -3 check.py` on Windows) to validate
-structure, then review the rule meaning and the limits of each enforcement claim.
+contract. A change is complete when `python3 check.py` (`py -3 check.py` on
+Windows) passes in the final state and the diff has been reviewed for rule
+meaning and honest enforcement claims. The checker validates structure; it
+cannot establish that a consumer enforces a rule.
 
-`main` is protected, so work on a branch and open a pull request from it,
-named as `EN-07.1` requires. It lands as a single squash-merged commit whose
-subject is the pull request's title, so that title is the commit subject and
-`EN-07.2` governs it.
+`main` is protected. Follow [EN-07.1](engineering/07-version-control.md#en-071--a-branch-names-its-issue)
+for branches and [EN-07.5](engineering/07-version-control.md#en-075--main-advances-only-by-squash-merge)
+for pull requests and merges.
 
 ## What a rule looks like
 
-Each rule is a section with four fields, defined in
-[EN-00's rule format](engineering/00-conformance.md#rule-format). A change that
-adds a rule supplies all four.
-
-The rationale decides whether the rule survives an argument: say what goes
-wrong without it rather than restating the statement. The enforcement field is
-a claim about reality, so name something that exists.
+[EN-00's rule format](engineering/00-conformance.md#rule-format) defines the
+four fields required for a new rule. An enforcement declaration names an
+existing mechanism.
 
 ## Rules to follow when changing the rules
 
-- **IDs are never renumbered** (`EN-00.1`). A new rule appends to its chapter. It
-  does not take a number in the middle and push the rest down: every citation in
-  every consuming repository is a link to a number.
-- **A chapter states the present** (`EN-03.1`). No history, and no explaining a
-  rule by the incident that prompted it. State the rule and the
-  consequence; the incident belongs in the pull request that adds it.
-- **The enforcement matrix is not decoration.** If you add a rule, add its row.
-  If you change what enforces a rule, change the row with it. A row naming a
-  script that does not exist is worse than a row saying `review`, because
-  it reads as a guarantee.
-- **A rule with no citation is a proposal.** The tiers exist to be cited from
-  code, tests and documents. If nothing in any repository would cite the rule you
-  are adding, say in the pull request what would.
+- [EN-00.1](engineering/00-conformance.md#en-001--rule-ids-are-stable)
+  governs IDs. Each new rule appends to its chapter. A withdrawal keeps the
+  heading `## <ID> — Withdrawn` and a reason.
+- [EN-03.1](engineering/03-documentation.md#en-031--documents-state-what-is-true-now)
+  governs current-state prose.
+- Add a matrix row for each new rule. Update the row when enforcement changes.
+  Each row accurately names the mechanism that exists.
+- Explain in the pull request what would cite a proposed rule if no repository
+  would cite it yet. The tiers exist for citation from code, tests and documents.
 
 ## Proposing a rule or a change to one
 
-Open a pull request. To change an existing rule, start with its rationale,
-and change the other fields only as far as the argument needs: the rationale
-field is where the argument actually is, and review of the pull request is
-where it is settled. A rationale that does not support its statement is argued
-this way too. Issues report defects only (`EN-03.7`).
+Propose changes through a pull request. Start an existing rule's revision with
+its rationale, and change the other fields only as far as the argument requires.
+The same process applies to a rationale that does not support its statement.
+[EN-03.7](engineering/03-documentation.md#en-037--a-deferral-is-a-docsfuture-workmd-entry-cited-by-its-id)
+governs issue scope.
 
 ## Consumers
 
-Consumers adopt a change by moving their pinned revision. Document a contract
-change so that consumers can decide when to take it. A tightened rule,
-withdrawal or vocabulary change requires a minor release while pre-1.0;
-wording-only changes require a patch.
+Consumer adoption follows [README.md](README.md#consuming-this-repository).
+Document contract changes so consumers can decide when to adopt them. Under
+[EN-06.1](engineering/06-release-and-versioning.md#en-061--semantic-versioning-with-the-break-confined-to-the-leading-component),
+a tightened rule, withdrawal or vocabulary change requires a minor release
+while pre-1.0. Wording-only changes require a patch.

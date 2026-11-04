@@ -3,16 +3,14 @@
 ## CXX-01.1 — `#pragma once`, on line 1
 
 **Statement.** Every header must begin with `#pragma once` on its first line. An
-`#ifndef` include guard must not be used. A file-level comment goes *after* the
-pragma, not before it.
+`#ifndef` include guard must not be used. A file-level comment goes after the pragma.
 
-**Rationale.** Every compiler this standard targets supports it, and it removes
-guard-name bookkeeping that a moved or renamed header silently gets wrong — a
-duplicated guard name makes one of the two headers expand to nothing, with no
-diagnostic.
+**Rationale.** Every supported compiler recognises `#pragma once`. Include
+guards require names to be maintained when headers move or are renamed. Duplicate
+guard names can cause a header to expand to nothing without a diagnostic.
 
-`#ifndef` remains correct for a *configuration macro with a default*
-(`#ifndef PROJECT_MAX_HEADERS`). That is not an include guard.
+`#ifndef` remains valid for a configuration macro with a default, such as
+`#ifndef PROJECT_MAX_HEADERS`. That use is not an include guard.
 
 **Enforcement.** review.
 **Deviation.** never.
@@ -32,18 +30,15 @@ diagnostic.
 | Namespace- or class-scope constant | `UPPER_CASE` | `MAX_HEADERS` |
 | `static` constant | `UPPER_CASE` | |
 | `constexpr` variable, at any scope | `UPPER_CASE` | `constexpr auto LIMIT = 8;` |
-| **`const`-qualified local** | **`lower_case`** | `const std::size_t length = n * 2;` |
+| `const`-qualified local | `lower_case` | `const std::size_t length = n * 2;` |
 
-**Rationale.** Two rows are counter-intuitive and both are deliberate.
+**Rationale.** A `const` local is not reassigned, but need not be a program
+constant. Keeping it `lower_case` preserves that distinction without discouraging
+`const`.
 
-A `const`-qualified *local* stays `lower_case`. `UPPER_CASE` says "constant of
-the program"; a local that merely is not reassigned is not that, and naming a
-table lookup `LENGTH` says something untrue about it. Worse, the rule pushes
-people to drop the `const` to avoid the shouting, which loses real information.
-
-A local `constexpr` *is* `UPPER_CASE`. It is a compile-time constant of the
-program, which is exactly what the previous row is not about. clang-tidy's
-`ConstexprVariableCase` is the more specific option and wins where both apply.
+A local `constexpr` is a compile-time program constant and uses `UPPER_CASE`.
+clang-tidy's more specific `ConstexprVariableCase` option takes precedence when
+both rules apply.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** permitted with
@@ -56,12 +51,12 @@ record — an ABI-mandated or externally-specified identifier.
 **Statement.** A name must describe what the entity is or does, not its
 representation or the mechanism behind it.
 
-**Rationale.** The representation changes and the name then lies. `deadline_ms`
-survives becoming a `std::chrono::milliseconds`; `timeout_uint32` does not.
+**Rationale.** Names based on representation become misleading when it
+changes. `deadline_ms` remains accurate if its type becomes
+`std::chrono::milliseconds`; `timeout_uint32` does not.
 
-Short conventional names are fine where the scope is small and the meaning is
-established: a loop index, a coordinate, an iterator. Padding them out adds
-nothing.
+Short conventional names are appropriate in small scopes where their meaning
+is established, such as loop indices, coordinates and iterators.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** permitted.
@@ -73,11 +68,11 @@ short names).
 
 **Statement.** Includes must be ordered: the matching header for this translation
 unit; then C++ standard library; then external dependencies; then this project's
-headers. Each group separated by a blank line, each group alphabetised.
+headers. Each group is alphabetised and separated from the next by a blank line.
 
-**Rationale.** The matching header first is the load-bearing part: it proves the
-header is self-contained, because anything it needs and does not include fails
-here rather than at some unlucky consumer.
+**Rationale.** Including the matching header first checks that it is
+self-contained. A missing include then fails in the owning translation unit
+before it affects a consumer.
 
 **Enforcement.** gate:format (partial), gate:lint (partial), review.
 **Deviation.** never.
@@ -90,9 +85,9 @@ completeness.
 **Statement.** A file must include every header providing something it names,
 and must not include headers it does not use.
 
-**Rationale.** Transitively-obtained declarations break when the intermediate
-header changes something unrelated, and the resulting error points at the wrong
-file. Unused includes slow compilation and imply dependencies that are not real.
+**Rationale.** Transitive declarations can disappear when an intermediate
+header changes, causing an error in an apparently unrelated file. Unused
+includes slow compilation and imply dependencies the file does not need.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** permitted with record.
@@ -104,9 +99,9 @@ file. Unused includes slow compilation and imply dependencies that are not real.
 **Statement.** `using namespace` must not appear at namespace scope in a header.
 Inside a function body, or in a `.cpp`, it is permitted.
 
-**Rationale.** In a header it is inflicted on every consumer transitively, and
-can change overload resolution in code that never asked for it — silently, and
-at a distance.
+**Rationale.** A namespace directive in a header reaches every transitive
+consumer. It can change overload resolution without a diagnostic in code far
+from the directive.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** permitted with
@@ -119,9 +114,9 @@ record, in test files.
 **Statement.** Every `if`, `else`, `for`, `while` and `do` body must be braced,
 including single statements.
 
-**Rationale.** The unbraced form is one careless edit away from a body that
-looks conditional and is not — the class of defect that has shipped in
-security-critical code more than once. The cost of the rule is zero.
+**Rationale.** An edit to an unbraced body can leave a statement looking
+conditional when it is unconditional. Braces prevent that ambiguity at no
+runtime cost.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** never.

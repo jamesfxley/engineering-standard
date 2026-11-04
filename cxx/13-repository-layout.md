@@ -1,18 +1,15 @@
 # CXX-13 — Repository layout
 
-Where files go. `EN-03.3` fixes the shape of `docs/`; this chapter fixes the
-rest of the tree, so that a reader arriving at any repository in a family finds
-the same answer in the same place.
+This chapter defines the repository layout outside `docs/`, which EN-03.3
+covers. A consistent layout helps readers find files across a family.
 
-Layout is a convention, not a language feature, and neither the C++ Core
-Guidelines nor the Google C++ Style Guide prescribes one. Left undecided it is
-re-decided per repository, and the divergence is invisible until someone has to
-work in two of them.
+Neither the C++ Core Guidelines nor the Google C++ Style Guide prescribes a
+layout. A shared convention prevents repositories from making different choices.
 
 ## CXX-13.1 — The tree
 
-**Statement.** A library package has this shape. In a multi-package repository, paths in
-this layout are relative to the package root.
+**Statement.** A library package has this shape. In a multi-package repository,
+paths are relative to the package root.
 
 ```
 CMakeLists.txt                             top-level configuration
@@ -29,32 +26,26 @@ examples/<name>/                           where the repository ships programs
 
 A package whose library is a single module has no module subdirectories. Its
 sources are `src/*.cpp`, its public headers are `include/<project>/`, and its
-tests are `tests/` directly — which is the same rule, not an exception to it.
+tests are directly under `tests/`.
 
-**Counting modules.** A module is a unit that installs public headers: a target
-carrying a `FILE_SET HEADERS`. A package is single-module when it has exactly
-one and multi-module otherwise. The umbrella target is not counted — the
-umbrella belongs to no module. A target carrying only flags or configuration
-installs no headers and is never a module, so a warning-set interface target
-does not make a repository multi-module.
+A module is a target that installs public headers through a `FILE_SET HEADERS`.
+A package is single-module when it has exactly one module and multi-module
+otherwise. The umbrella target belongs to no module and is excluded from the
+count. A target carrying only flags or configuration installs no headers and
+is not a module.
 
-One module, one directory. A directory installing two unrelated header sets is
-two modules that have not been separated yet, whatever the linkage between their
-targets.
+Each module has one directory. Two unrelated installed header sets in one
+directory are two modules that need separating, regardless of their targets'
+linkage.
 
-The count decides the whole layout, so it is settled by the rule above rather
-than by judgement. A repository read as single-module while it already carries a
-module subdirectory shipping an installed header takes a tree-wide move to
-correct, and left to judgement the question is re-decided at every audit.
+The module count determines the layout. Applying the count consistently avoids
+repeated reassessment and tree-wide moves to correct a misclassified package.
 
-**Rationale.** The module is the unit of the build, so it is also the unit of
-the tree: one directory carries a target's sources, its headers and its
-`CMakeLists.txt`, and nothing about that target is anywhere else. A reader
-answering "what is in this target?" reads one directory.
+**Rationale.** Keeping a target's sources, headers and `CMakeLists.txt` in one
+directory lets a reader find its contents in one place.
 
-The umbrella header sits at `src/include/<project>/` rather than inside a
-module because it belongs to no module. It is the project's front door and the
-home of its version constants (`CXX-13.5`).
+The umbrella header belongs to no module. It provides the project entry point
+and version constants (CXX-13.5) at `src/include/<project>/`.
 
 **Enforcement.** review.
 **Deviation.** permitted with record — a vendored third-party tree keeps its own
@@ -71,19 +62,12 @@ Test sources are named `<subject>_test.cpp`; fuzz targets `<subject>_fuzz.cpp`.
 
 `src/` contains no test code.
 
-**Rationale.** Two properties, and the mirror is what gives both at once.
+**Rationale.** Matching directory names make a module's tests easy to find.
+Deleting a module without its tests leaves a visibly orphaned directory.
 
-Tests stay adjacent to their subject: the directory name is the same, so the
-test for a module is where a reader looks for it, and a module deleted without
-its tests leaves an obviously orphaned directory.
-
-`src/` stays exactly the shippable surface. An install rule, a footprint
-measurement, a lint scope or a coverage filter over `src/` needs no exclusion
-for test code, and a test file added later cannot silently enter one.
-
-The alternative — tests beside sources inside each module — keeps adjacency but
-loses the second property, and every tool pointed at `src/` then needs an
-exclusion that is easy to forget and silent when wrong.
+Keeping tests outside `src/` also lets installation, footprint, lint and coverage
+tools treat `src/` as shippable code. Tests placed beside sources would require
+exclusions in every such tool, with omissions liable to go unnoticed.
 
 **Enforcement.** review.
 **Deviation.** never.
@@ -98,16 +82,12 @@ test exclusion is the standing check.
 directory. Implementation-detail headers live beside the sources that use them,
 or under `detail/` per `CXX-10.2`.
 
-**Rationale.** A header collected into a project-wide `include/` is separated
-from the code that owns it, so a change to a module touches two distant places
-and a deleted module leaves its headers behind. Keeping them together means the
-module directory is self-describing and moves as one unit.
+**Rationale.** Keeping headers beside their module's implementation lets the
+module move as one unit. A project-wide header directory makes changes span
+distant paths and can leave headers behind when a module is removed.
 
-The include *path* is unaffected: the directory nesting exists so that
-`target_include_directories` on the module target exports
-`<project>/<module>/thing.hpp` regardless of where the module sits on disk. The
-consumer-visible spelling is the same either way, which is what makes this a
-free choice rather than an API decision.
+`target_include_directories` still exports `<project>/<module>/thing.hpp`.
+The on-disk location does not change the consumer's include path or the API.
 
 **Enforcement.** review.
 **Deviation.** permitted — a single-module repository has one module, so
@@ -130,9 +110,9 @@ The development tools choose the configuration filenames and command. A
 contribution guide and security policy must also be available, either locally
 or through the hosting service's default community files.
 
-**Rationale.** A reader and a tool need a predictable way to discover the
-repository's requirements. Declaring that contract avoids a special case for
-every repository while allowing different development tools to implement it.
+**Rationale.** A declared development contract lets readers and tools discover
+requirements consistently. Different development tools can implement the same
+contract without repository-specific discovery rules.
 
 **Enforcement.** review.
 **Deviation.** permitted with record.
@@ -148,16 +128,13 @@ translation unit of the library itself.
 A header-only library, having no translation unit, binds them in its test suite
 instead, and records why.
 
-**Rationale.** Two records of one fact drift. The build system's version is the
-one that reaches a package consumer through `find_package`; the header's is the
-one reaching a consumer who reads it. A release that updates one and not the
-other ships a library that misreports itself.
+**Rationale.** The build version reaches package consumers through
+`find_package`; the header version reaches callers reading its constants.
+Updating only one misreports the version to some consumers.
 
-`static_assert` rather than a test because a test is skipped in exactly the
-configurations that matter: a firmware build and a consumer build both configure
-with tests off, so a test-only binding is checked only in the one tree that
-never ships. The compile-time form is checked in every tree that compiles the
-library at all.
+Firmware and consumer builds commonly disable tests. A library-level
+`static_assert` checks agreement in every build that compiles the library,
+including those configurations.
 
 **Enforcement.** compiler (static_assert), build (ctest), review.
 **Deviation.** permitted with record — a header-only library, per the statement.

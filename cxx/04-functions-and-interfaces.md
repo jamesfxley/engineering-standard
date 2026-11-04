@@ -14,14 +14,12 @@
 | Take ownership | by value, then move; or `std::unique_ptr<T>` |
 | Optional, no ownership | `const T*` (null means absent) |
 
-**Rationale.** The signature is the documentation of what a function does with
-its argument, and it is the only part a caller cannot ignore. `std::span` and
-`std::string_view` in particular replace a pointer/length pair whose two halves
-can disagree — the most common source of buffer defects — with one object that
-cannot.
+**Rationale.** The signature tells callers how the function uses an argument.
+`std::span` and `std::string_view` combine a pointer and length in one object so
+separately passed values cannot disagree.
 
-Do not take `const T&` to a type smaller than a pointer; the indirection costs
-more than the copy.
+Do not pass a type smaller than a pointer by `const T&`; the indirection costs
+more than copying it.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** permitted.
@@ -35,9 +33,9 @@ more than the copy.
 beyond the call unless the interface documents that the caller keeps the storage
 alive, and names who owns it.
 
-**Rationale.** They are non-owning. Storing one is a dangling reference waiting
-for the caller to do something reasonable, and the failure is a use-after-free
-that appears unrelated to the storing code.
+**Rationale.** Views do not own their storage. A stored view can dangle when
+the caller releases the storage, causing a use after free far from the site
+that stored it.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** permitted with record.
@@ -50,12 +48,10 @@ documented case.
 **Statement.** A function whose return value carries a failure indication, or
 whose result is the only reason to call it, must be `[[nodiscard]]`.
 
-**Rationale.** An ignored error return is a silent failure by construction. The
-attribute costs nothing and converts it into a compile error.
-
-This applies especially to capacity-limited operations: a `Queue::append` that
-returns `false` when the queue is full must have its result checked, or a caller
-can report work accepted even though the queue contains no new item.
+**Rationale.** `[[nodiscard]]` exposes ignored results at compile time. An
+unchecked capacity-limited operation can otherwise appear to accept work when
+it rejected it. For example, a `Queue::append` operation that reports a full
+queue with `false` must have its result checked.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** never.
@@ -68,9 +64,9 @@ can report work accepted even though the queue contains no new item.
 only where a return is impossible — multiple results of different lifetimes, or
 writing into caller-provided storage on a no-allocation path.
 
-**Rationale.** An out-parameter cannot be `[[nodiscard]]`, cannot be used in an
-expression, and gives no indication at the call site whether it was written.
-`std::optional`, a small struct, or a `Result<T>` are all clearer.
+**Rationale.** Out-parameters cannot be `[[nodiscard]]` or used as expression
+results. The call also does not show whether they were written. `std::optional`,
+a small struct or `Result<T>` states the result more clearly.
 
 **Enforcement.** review.
 **Deviation.** permitted.
@@ -81,8 +77,8 @@ expression, and gives no indication at the call site whether it was written.
 failure, or document them as caller obligations. It must not silently do
 something else when they are violated.
 
-**Rationale.** The third option — clamping, truncating, returning a default — is
-the one that produces defects with no diagnostic anywhere. See `CXX-07.2`.
+**Rationale.** Clamping, truncating or returning a default after a precondition
+failure can hide the defect without a diagnostic. See CXX-07.2.
 
 **Enforcement.** review.
 **Deviation.** never.
@@ -90,15 +86,13 @@ the one that produces defects with no diagnostic anywhere. See `CXX-07.2`.
 ## CXX-04.6 — Functions stay small enough to hold in the head
 
 **Statement.** A function should stay within the configured line and cognitive
-complexity limits. Exceeding them is a signal to decompose, not to raise the
-limit.
+complexity limits. Exceeding a limit signals a need to decompose the function.
+It does not justify raising the limit.
 
-**Rationale.** Cognitive complexity tracks nesting and branching, which is what
-actually makes a function hard to reason about — closer to reviewability than a
-raw line count.
+**Rationale.** Cognitive complexity tracks nesting and branching, which affect
+how easily a function can be reviewed. Line count alone does not capture them.
 
-A long flat table or a switch over a wire format is genuinely fine and is what
-the exemptions exist for.
+Exemptions allow long, flat tables and switches over wire formats.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** permitted with record.
@@ -112,14 +106,12 @@ the exemptions exist for.
 them would compile but be wrong, they should be given distinct types or
 combined into one object.
 
-**Rationale.** `copy(dst, src, n)` and `copy(src, dst, n)` both compile. A
-strong typedef or a small struct makes the mistake impossible rather than
-merely discouraged.
+**Rationale.** `copy(dst, src, n)` and `copy(src, dst, n)` both compile.
+Distinct types or a struct prevent a swapped-argument error.
 
-The generic check for this fires on every two-same-typed-parameter function,
-which is most well-typed interfaces. This standard places
-`bugprone-easily-swappable-parameters` on the rejected list (`EN-01.1`,
-`EN-00.7`); the judgement is a review item.
+`bugprone-easily-swappable-parameters` reports every function with two
+same-typed parameters, including valid interfaces. This standard rejects the
+check under EN-01.1 and EN-00.7 and leaves the judgement to review.
 
 **Enforcement.** review.
 **Deviation.** permitted.

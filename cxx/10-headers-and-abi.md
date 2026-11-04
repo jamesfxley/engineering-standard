@@ -5,9 +5,9 @@
 **Statement.** A header must compile on its own, including everything it needs
 and depending on no particular include order.
 
-**Rationale.** Order-dependent headers work until someone reorders an unrelated
-include, at which point a header far away fails to compile. Including the
-matching header first in each `.cpp` (`CXX-01.4`) proves this continuously.
+**Rationale.** A header that depends on include order can fail after an
+unrelated include is moved. Including the matching header first in each `.cpp`
+checks self-containment continuously (CXX-01.4).
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** never.
@@ -17,13 +17,12 @@ matching header first in each `.cpp` (`CXX-01.4`) proves this continuously.
 ## CXX-10.2 — Public headers are a namespaced tree
 
 **Statement.** Public headers must live under a directory named for the project,
-and must be included as `<project/module/thing.hpp>`. Implementation detail lives under a
-`detail/` subdirectory and is not part of the public surface.
+and must be included as `<project/module/thing.hpp>`. Implementation details
+live under a `detail/` subdirectory outside the public surface.
 
-**Rationale.** The prefix prevents collisions with other libraries' headers and
-makes every include self-describing. `detail/` states what consumers may not
-depend on — without it, everything reachable becomes de facto public and cannot
-be changed.
+**Rationale.** The project prefix prevents header-name collisions and
+identifies the owner of each include. `detail/` marks reachable headers that
+consumers may not depend on, allowing their implementation to change.
 
 **Enforcement.** review.
 **Deviation.** never.
@@ -35,19 +34,13 @@ a consumer must be a `PUBLIC` `target_compile_definitions` on the target owning
 the header that reads it. `add_compile_definitions` at directory scope must not
 be used for it.
 
-**Rationale.** This is the highest-severity build-system defect in this
-standard, because it fails silently and catastrophically.
+**Rationale.** A directory-scoped definition reaches only the project's own
+targets. A consumer can compile a public header without the definition and use
+a different structure size, causing stack corruption far from its cause.
 
-A directory-scoped definition reaches only the defining project's own targets.
-A consumer that includes the header compiles it *without* the definition, so the
-consumer and the library disagree about a structure's size — and the result is
-stack corruption in the consumer, at a point unrelated to the cause.
-
-`PUBLIC` on the owning target propagates through the link graph to every
-consumer that links it, which is the only mechanism that gets this right.
-
-Verify rather than assume: configure a consumer with a non-default value and
-grep its `compile_commands.json` for the definition, per translation unit.
+A `PUBLIC` definition on the owning target propagates to consumers through the
+link graph. Verify it by configuring a consumer with a non-default value and
+checking each translation unit's entry in `compile_commands.json`.
 
 **Enforcement.** gate:consumer (partial), review.
 **Deviation.** never.
@@ -60,11 +53,9 @@ grep its `compile_commands.json` for the definition, per translation unit.
 in-tree `ALIAS`. Strip the namespace prefix from the target name when setting
 `EXPORT_NAME`.
 
-**Rationale.** A target named `mylib_core` with an alias `mylib::core` exports by
-default as `mylib::mylib_core`. In-tree consumers link `mylib::core` and
-`find_package` consumers must write `mylib::mylib_core` — so every documented
-link line is wrong for exactly one of the two audiences, and the failure only
-appears once someone consumes the installed package.
+**Rationale.** A target `mylib_core` with alias `mylib::core` exports by default
+as `mylib::mylib_core`. Different names make a documented link command fail for
+either in-tree or installed-package consumers.
 
 **Enforcement.** gate:consumer (partial), review.
 **Deviation.** never.
@@ -77,9 +68,9 @@ appears once someone consumes the installed package.
 handful of inline functions, or a `constexpr` table. Anything with a real
 implementation belongs in a `.cpp`.
 
-**Rationale.** Header-only means recompiling every consumer on every change, and
-every consumer paying the parse cost. It buys a simpler build, which is worth
-little compared to the compile-time cost at any size.
+**Rationale.** Header-only code makes every consumer parse the implementation
+and recompile when it changes. The simpler build rarely offsets that
+compilation cost as the implementation grows.
 
 **Enforcement.** review.
 **Deviation.** permitted.
@@ -89,9 +80,9 @@ little compared to the compile-time cost at any size.
 **Statement.** `std` must not be modified. A specialisation for a user type may
 be added only where the standard explicitly permits it.
 
-**Rationale.** Adding declarations to `std` is undefined behaviour, and the
-usual symptom is a link-time conflict or a silently different overload chosen in
-a different translation unit.
+**Rationale.** Unpermitted declarations in `std` cause undefined behaviour.
+Symptoms include link conflicts and different overload choices in different
+translation units.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** never.
@@ -103,10 +94,9 @@ a different translation unit.
 **Statement.** An anonymous namespace must not be used in a header. Use `inline`
 or `constexpr` for a header-scope entity instead.
 
-**Rationale.** It gives every translation unit including the header its own
-distinct copy with a distinct address — so an ODR-relevant comparison of
-addresses disagrees between translation units, and any state in it is silently
-per-TU.
+**Rationale.** Each translation unit gets a distinct copy with its own
+address and state. Address comparisons can then disagree across translation
+units in ways that affect the one definition rule (ODR).
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** never.
