@@ -85,9 +85,9 @@ in `future-work.md` — see EN-03.7.
 the declarations, not maintained by hand.
 
 **Rationale.** A hand-written reference is a second copy of the signatures, and
-the copy drifts. Generation makes drift impossible, and turning on
-"warn if undocumented" converts a missing doc comment into a build warning
-rather than a silent omission.
+the copy drifts. Generation makes drift impossible. Warn-if-undocumented turns a
+missing doc comment into a build warning; it asks for a statement of the
+contract, which for a simple member is one line (EN-03.12).
 
 **Enforcement.** gate:api-docs (partial), review.
 **Deviation.** permitted.
@@ -208,3 +208,88 @@ is checked here; the rule is about the paths a project controls.
 **Deviation.** never.
 
 **Mechanism.** The `doc-links` gate.
+
+## EN-03.9 — A document has one reader and one register
+
+**Statement.** A document must serve the reader its routing row names, in one
+register from start to end. Instructions to an agent belong in documents
+written for agents, such as `AGENTS.md`, not in documents written for people.
+An edit must leave the whole document in its register.
+
+**Rationale.** A document written for two readers serves neither. Text added by
+later edits in another register makes a document change tone mid-page.
+
+**Enforcement.** review.
+**Deviation.** never.
+
+**Mechanism.** Review reads the whole document an edit touches, not only the
+changed lines.
+
+## EN-03.10 — Prose is plain and spare
+
+**Statement.** Prose must use full sentences with one claim each, in the fewest
+words that keep the reasons. It must not contain:
+
+- fragments in running text (table cells, list items and field values may be
+  phrases);
+- stacked nouns or clauses the reader must reread to parse;
+- a "this", "that" or "which" whose referent the reader must search for;
+- filler or signposting ("Note that", "It is important to", "This section
+  describes");
+- slogans: aphorisms, "X, not Y" sentences written for effect, bold lead
+  sentences, and headings written for effect instead of naming their topic;
+- emphasis used for tone.
+
+Prose uses British spelling. An identifier keeps its own spelling and is written
+in code font.
+
+**Rationale.** Compressed text costs the reader more time than it saves the
+writer. Slogans and emphasis assert importance instead of explaining it.
+
+**Enforcement.** review.
+**Deviation.** never.
+
+**Mechanism.** Review compares the text with the review guide's reference
+examples.
+
+## EN-03.11 — Terms are defined once and used consistently
+
+**Statement.** A term the reader cannot be assumed to know must be defined at
+its first use in the document, or in a glossary the document links. One concept
+has one name within a project. Projects that share terms name them in one
+shared document.
+
+**Rationale.** An undefined term stops the reader. Two names for one thing make
+the reader ask whether they are two things.
+
+**Enforcement.** review.
+**Deviation.** never.
+
+## EN-03.12 — A comment states what the code cannot
+
+**Statement.** A comment must state something the code does not show: a
+contract, a unit, an invariant, a hazard, a required order, or an external
+source. It must not restate the code, defend the code against an alternative
+not taken, address a reviewer or a tool, or repeat the specification. A doc
+comment is as long as its contract: a member whose name and type state the
+contract takes a one-line brief. A change to code must update or remove the
+comments it affects.
+
+The justification EN-00.4 requires before a suppression is the one comment that
+addresses a tool.
+
+**Rationale.** A comment that defends a decision is never wrong, so it is never
+removed. Such comments accumulate and bury the contract the reader needs.
+
+**Enforcement.** review.
+**Deviation.** never.
+
+## EN-03.13 — Each fact has one owner
+
+**Statement.** A fact must be stated in one document. Other documents link to
+it. A policy this standard owns is cited by ID, not restated.
+
+**Rationale.** Copies drift, and the reader cannot tell which copy is current.
+
+**Enforcement.** review.
+**Deviation.** never.

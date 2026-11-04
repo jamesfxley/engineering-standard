@@ -6,6 +6,11 @@
 project's normative specification, and the code and tests that implement and
 exercise it must cite that identifier.
 
+Cite the ID where the guarantee is implemented and where it is tested, not on
+every line that contributes. In a comment the ID is a trailing tag after the
+sentence it supports; it does not replace the explanation. Outside the
+specification, a heading carries no ID, and neither does a README.
+
 **Rationale.** Without it there is no way to answer two questions that come up
 constantly: *what breaks if I change this?* and *is this behaviour required or
 incidental?* A cited ID answers both from the code, and makes the specification
@@ -48,9 +53,8 @@ names the class of requirement. The prefix set must be pinned in
 `docs/requirement-prefixes.txt`. `FW` names future-work entries (`EN-03.7`)
 and is not a requirement prefix.
 
-**Rationale.** The prefix makes a citation self-describing at the point of use:
-seeing `AR-1` in a comment tells you it is an architecture/resource guarantee
-without opening the document. It also groups the traceability matrix
+**Rationale.** The prefix tells a reader what kind of guarantee a cited ID is
+without opening the specification. It also groups the traceability matrix
 usefully.
 
 Common prefixes, though a project picks its own: `AR` architecture and resource,
