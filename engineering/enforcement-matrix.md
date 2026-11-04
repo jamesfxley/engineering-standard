@@ -14,6 +14,7 @@ Concrete diagnostic names and check boundaries are in each clause.
 | EN-00.6 — Deviation counts ratchet down | — | gate:deviations (partial) | review |
 | EN-00.7 — Disabling a rule everywhere belongs in the shared configuration | — | — | review |
 | EN-00.8 — Shared components depend on no consumer's identity or layout | — | — | review |
+| EN-00.9 — Source code cites a rule only to suppress or check it | — | — | review |
 | EN-01.1 — Start from every check, exclude with a reason | — | — | review |
 | EN-01.2 — Lint blocks | — | gate:lint (partial); gate:synced-files (partial) | review |
 | EN-01.3 — Warnings are errors | — | gate:build-warnings (partial) | compiler (-Werror); review |
@@ -38,6 +39,11 @@ Concrete diagnostic names and check boundaries are in each clause.
 | EN-03.6 — Markdown destined elsewhere goes in a fenced block | — | — | review |
 | EN-03.7 — A deferral is a `docs/future-work.md` entry, cited by its ID | — | — | review |
 | EN-03.8 — A link between documents resolves | gate:doc-links (full) | — | — |
+| EN-03.9 — A document has one reader and one register | — | — | review |
+| EN-03.10 — Prose is plain and spare | — | — | review |
+| EN-03.11 — Terms are defined once and used consistently | — | — | review |
+| EN-03.12 — A comment states what the code cannot | — | — | review |
+| EN-03.13 — Each fact has one owner | — | — | review |
 | EN-04.1 — One seam per platform dependency, with a fake behind it | — | — | review |
 | EN-04.2 — Tests cite the requirement they establish | — | — | review |
 | EN-04.3 — One behaviour per test | — | — | review |

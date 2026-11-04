@@ -200,3 +200,16 @@ MISRA C++:2023 is a paid, copyright-restricted document and its text is **not**
 reproduced anywhere in this standard — no quotations, and no MISRA rule numbers
 presented as ours. Where a constrained-target rule here serves a similar purpose,
 it was written independently from the underlying engineering reason.
+
+## EN-00.9 — Source code cites a rule only to suppress or check it
+
+**Statement.** In source code, the ID of a rule in this standard or a language
+tier must appear only in a suppression justification, or in code that checks
+that rule. Code that follows a rule does not cite it.
+
+**Rationale.** A citation in ordinary code argues that the code complies, which
+is review's job. Such citations accumulate beside the comment the reader needs
+and make it harder to find.
+
+**Enforcement.** review.
+**Deviation.** never.
