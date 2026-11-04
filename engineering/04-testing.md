@@ -7,18 +7,14 @@ other environment dependency must sit behind a single interface, with a fake
 implementation in the project's own testing module. Only the platform glue may
 require the real thing.
 
-**Rationale.** This is the highest-leverage structural decision in a project
-that touches an environment. With it, the whole behavioural surface is testable
-on a developer machine in milliseconds, and the part that genuinely needs
-hardware shrinks to a thin adapter. Without it, every test needs the
-environment, so the suite is slow, flaky and eventually not run.
+**Rationale.** An interface isolates the environment so the behaviour can be
+tested quickly on a developer machine. Only a thin platform adapter needs the
+real environment. Tests that all need hardware or network access become slow
+and unreliable, and eventually stop being run.
 
-*Single* is the load-bearing word. Two seams for the same dependency means the
-fake covers one path and reality covers the other, which is worse than one seam
-because it looks like coverage.
-
-The fake belongs in the shipped source tree, not in the test directory:
-downstream projects need it to test their own code against this one.
+Two interfaces to one dependency can leave a real path outside the fake's
+coverage. The fake belongs in shipped source, outside the test directory, so
+downstream projects can use it to test their code.
 
 **Enforcement.** review.
 **Deviation.** permitted with record.
@@ -28,9 +24,9 @@ downstream projects need it to test their own code against this one.
 **Statement.** A test that exists to establish a specified behaviour must cite
 its requirement ID.
 
-**Rationale.** It closes the loop specification review checks, and it tells the
-next person whether a failing test is a broken guarantee or an over-specified
-test. Those call for opposite responses.
+**Rationale.** The citation lets specification review verify coverage. It
+also helps readers distinguish a broken guarantee from an over-specified test
+when the test fails.
 
 **Enforcement.** review.
 **Deviation.** permitted.
@@ -43,9 +39,9 @@ the tests establish its criterion.
 **Statement.** A test should establish one behaviour, and its name should say
 which.
 
-**Rationale.** A test asserting five things reports the first failure and hides
-the rest, so fixing it is iterative. A name that describes the behaviour also
-means the failure output alone often identifies the defect.
+**Rationale.** A test reports its first failing assertion and hides later
+failures. A name that identifies the behaviour can make the failure output
+enough to locate the defect.
 
 **Enforcement.** review.
 **Deviation.** permitted.
@@ -56,10 +52,9 @@ means the failure output alone often identifies the defect.
 wrap-around arithmetic, tests must cover the boundary values and the values
 either side, including the overflow behaviour.
 
-**Rationale.** Defects cluster at boundaries. The interesting cases are one
-below capacity, exactly capacity, one above, and — for anything with a counter —
-the wrap point, which is otherwise reached only in production after weeks of
-uptime.
+**Rationale.** Defects cluster at boundaries: one below capacity, at capacity,
+one above it, and at a counter's wrap point. Normal operation can take weeks
+to reach the wrap point.
 
 **Enforcement.** review.
 **Deviation.** never.
@@ -70,11 +65,9 @@ uptime.
 the input delivered whole and delivered in the smallest possible pieces, and
 must reach the same verdict either way.
 
-**Rationale.** This is the single most productive test shape for a parser or
-protocol engine. Segmentation is chosen by the network, not by the caller, so
-any state the implementation keeps across a call boundary is exercised by
-feeding one byte at a time and by nothing else. The bugs it finds are exactly
-the ones that appear in production and not in development.
+**Rationale.** The network chooses segmentation, so development inputs can
+miss failures at call boundaries. Feeding the smallest pieces exercises the
+state retained between calls.
 
 **Enforcement.** review.
 **Deviation.** permitted with record.
@@ -84,10 +77,9 @@ the ones that appear in production and not in development.
 **Statement.** A component that parses input from outside the program's trust
 boundary must have a fuzz target, with a corpus carried between CI runs.
 
-**Rationale.** Hand-written tests cover the cases someone thought of.
-Fuzzing covers the ones nobody did, which is where the memory-safety defects
-are. Combined with sanitizers it is the highest-yield technique available for
-this class of code.
+**Rationale.** Hand-written tests cover anticipated cases. Fuzzing explores
+unanticipated inputs where memory-safety defects can hide. Sanitisers make
+those defects easier to detect.
 
 **Enforcement.** build (-fsanitize=fuzzer), gate:synced-files (partial), review.
 **Deviation.** permitted with record.
@@ -100,13 +92,11 @@ this class of code.
 sizes, offsets and expected values in a test may sit at the assertion rather
 than being hoisted to named constants.
 
-**Rationale.** A magic-number rule exists to stop an unexplained constant being
-shared across production code. In a test the literal *is* the specification of
-the case, and moving it away from the assertion that reads it makes the test
-harder to check, not easier.
+**Rationale.** In production code, an unexplained shared constant hides its
+meaning. In a test, a literal states the case. Keeping it at the assertion makes
+the case easier to check.
 
-This is the most common legitimate scope-wide deviation. It is still registered
-under EN-00.5 — with a review date — rather than assumed.
+The exception still needs registration and a review date under EN-00.5.
 
 **Enforcement.** gate:deviations (partial), review.
 **Deviation.** permitted with record.

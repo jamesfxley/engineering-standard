@@ -3,27 +3,22 @@
 ## EN-03.1 — Documents state what is true now
 
 **Statement.** Documentation, specifications and code comments must state the
-present state. No history, no version narrative, no justification of a decision
-relative to what came before, and no ticket reference standing in for an
-explanation. The bare reference EN-03.7 requires is not an exception to this: it
-points at where the reasoning is kept, and carries none of it.
+present state. History, version narrative, justifications relative to a previous
+state and ticket references in place of explanations are excluded.
+The bare reference required by EN-03.7 points to the reasoning without copying it.
 
-A date is not narrative. Where another rule requires one — the conditions on a
-committed measurement (EN-06.7), the expiry on a standing deviation
-(EN-00.5) — it is a fact the reader needs, and it stays.
+Dates are not narrative. Dates required by other rules remain, including
+measurement conditions (EN-06.7) and standing-deviation expiry dates (EN-00.5).
 
-A commit body is outside this rule. EN-07.3 requires it to state what was true
-before that made the change right, which is the one place the reasoning
-belongs.
+Commit bodies are outside this rule. EN-07.3 requires them to explain the
+previous state that justifies a change.
 
-**Rationale.** Narrative documentation decays the moment the thing it narrates
-changes, and it decays silently — the prose still reads fine, it is just no
-longer true. A reader cannot tell which sentences are current. Version control
-already holds the history, more accurately and with attribution.
+**Rationale.** History in documentation becomes stale as the implementation
+changes. Readers cannot tell which sentences still apply. Version control
+preserves history with attribution.
 
-"Prefer no comment to a narrative one" is the operational form. A comment saying
-*what an invariant is* earns its place; one saying *what this used to do* does
-not.
+An invariant belongs in a comment. A description of what the code used to do
+does not; prefer no comment to a narrative one.
 
 **Enforcement.** review.
 **Deviation.** never.
@@ -33,15 +28,13 @@ not.
 **Statement.** The specification may state a normative gate ("at most 64 queued items,
 CI-enforced"). It must not state a measured value.
 
-**Rationale.** The two look alike and behave oppositely. A gate is a decision and
-stays true until deliberately changed; a measurement is an observation of one run
-on one build of one machine, and is stale immediately. Mixing them means readers
-cannot tell which numbers they may rely on.
+**Rationale.** A gate is a decision that remains true until changed. A
+measurement describes one run on one build and machine. Mixing the two makes
+it hard to tell which numbers are commitments.
 
-Measurements belong in a run record beside whatever produced them, with the
-conditions attached — build type, hardware, date. Conditions are not a detail:
-the same suite on a debug build and a release build are not comparable, and a
-run record that omits which one it was is unusable.
+Measurements belong in a run record beside whatever produced them. The record
+includes the build type, hardware and date. Results from debug and release
+builds are not comparable without those conditions.
 
 **Enforcement.** review.
 **Deviation.** never.
@@ -67,12 +60,9 @@ the standard file set.
 | `orientation.md` | Rules true only of this repository (`EN-00.2`) |
 | `Doxyfile`, `api/` | The generated reference and its output (`EN-03.4`) |
 
-**Rationale.** The split that matters is normative versus descriptive.
-Collapsing them produces a document where a reader cannot tell a commitment from
-a description of how something happens to work today, and the descriptive
-sentence gets implemented against as though it were specified. What is merely
-planned does not belong in the normative or descriptive files; it is recorded
-in `future-work.md` — see EN-03.7.
+**Rationale.** Separating normative and descriptive documents lets readers
+distinguish commitments from implementation details. Planned work belongs in
+`future-work.md` under EN-03.7.
 
 **Enforcement.** review.
 **Deviation.** permitted with record.
@@ -99,9 +89,8 @@ contract, which for a simple member is one line (EN-03.12).
 **Statement.** A code example in documentation should be compiled by the test
 suite rather than pasted.
 
-**Rationale.** Pasted examples are the first thing to break on an API change and
-the last thing anyone checks. An example that is a real compiled fixture cannot
-go stale without failing.
+**Rationale.** An API change can break pasted examples without anyone noticing.
+A compiled fixture exposes the break as a test-suite failure.
 
 **Enforcement.** build (ctest), review.
 **Deviation.** permitted.
@@ -110,12 +99,12 @@ go stale without failing.
 
 ## EN-03.6 — Markdown destined elsewhere goes in a fenced block
 
-**Statement.** Markdown written for somewhere else — an issue body, a pull
-request description, a commit message, a snippet for another document — must be
-presented inside a fenced code block.
+**Statement.** Markdown written for another destination must be presented in a
+fenced code block. Destinations include issue bodies, pull request descriptions,
+commit messages and snippets for other documents.
 
-**Rationale.** Otherwise it renders in the conversation and has to be
-reconstructed by hand to be used, usually losing formatting.
+**Rationale.** A fence preserves Markdown for copying. Rendered Markdown needs
+manual reconstruction, which can lose formatting.
 
 **Enforcement.** review.
 **Deviation.** never.
@@ -123,8 +112,9 @@ reconstructed by hand to be used, usually losing formatting.
 ## EN-03.7 — A deferral is a `docs/future-work.md` entry, cited by its ID
 
 **Statement.** Work deliberately not done, but which may still be built, is a
-deferral. That includes a stated limitation and an evidence gap: a claim not yet measured or observed, which the
-documentation presents as unconfirmed. A defect is something wrong now: a crash
+deferral. Deferrals include stated limitations and evidence gaps. An evidence
+gap is a claim not yet measured or observed that the documentation presents as
+unconfirmed. A defect is something wrong now: a crash
 or hang the specification does not call for, other behaviour the specification
 or documentation does not permit, or a statement in the code or documentation
 that is untrue, including an unmeasured claim presented as established. Every
@@ -146,13 +136,13 @@ IDs run from `FW-1` without gaps and are never renumbered or reused. An entry
 that is built or dropped is replaced by a stub, `## FW-<n> — Built` or
 `## FW-<n> — Dropped`, and one line saying what replaced it or why. The same
 change removes the project's own citations of it. Dropped work is no longer
-intended, so a statement of what is out of scope that remains is a scope
-decision rather than a deferral.
+intended. Any remaining statement excluding that work from scope is a scope
+decision.
 
-Where the tree acknowledges a deferral — a `DEFER` note, a requirement that
-stops short, a specification statement of what is out of scope, a document
-explaining an absence — it carries the entry ID and at most a phrase naming
-what is absent. The reasoning lives in the entry.
+Each acknowledgement of a deferral in the tree carries the entry ID and at most
+a phrase naming the absence. Acknowledgements include `DEFER` notes,
+requirements that stop short, specification exclusions and explanations of
+absent features. The entry holds the reasoning.
 
 Work that spans several repositories under this standard has an entry in each.
 A citation of another repository's entry takes the form `<repository>:FW-<n>`,
@@ -163,15 +153,15 @@ through a change opened together with the adding change. The adding change
 merges first, so each partner change's citation resolves when it merges.
 
 **Rationale.** An entry in the tree is versioned with the requirement it
-qualifies, so a reader of a pinned revision sees the deferral and its reasoning
-together. An issue lives outside that revision and can be closed, moved or lost
-without the tree changing. Gapless IDs with stubs keep every citation
-resolvable, including one from another repository that still names a built
-entry, and make a removed or reused ID visible in the file itself. A deferral
-is not a contract, so another repository's entry is read at its current state
-rather than at a pinned version. Only repositories under this standard can be
-required to carry an entry. Restricting the tracker to defects keeps its open
-items a list of things that are broken.
+qualifies. A reader of a pinned revision sees the deferral and its reasons
+together. An issue can be closed, moved or lost independently of that revision.
+
+Gapless IDs and stubs keep citations resolvable, including citations from other
+repositories to built entries. They also expose removed or reused IDs. A deferral
+is not a contract, so citations of another repository's entries resolve to its
+current state. Only repositories under this standard can be required to keep
+entries. Restricting the tracker to
+defects makes its open items a list of things that are broken.
 
 **Enforcement.** review.
 **Deviation.** never.
@@ -195,14 +185,12 @@ to a future-work entry or a pull request.
 exists within the repository. An absolute URL and a bare fragment are outside
 this rule.
 
-**Rationale.** Deleting or moving a document breaks every link to it,
-including links inside a normative specification, while every other gate stays
-green. A reader following one cannot reach the document that was supposed to
-explain the thing they were reading about. It reads as a promise the project
-has already broken.
+**Rationale.** Moving or deleting a document can break links while other
+gates still pass. A broken link prevents the reader from reaching the promised
+explanation, even from a normative specification.
 
-Absolute URLs are somebody else's uptime and a fragment is a heading, so neither
-is checked here; the rule is about the paths a project controls.
+The project controls relative paths. Absolute URLs depend on external services,
+and fragments identify headings; neither is checked by this rule.
 
 **Enforcement.** gate:doc-links (full).
 **Deviation.** never.

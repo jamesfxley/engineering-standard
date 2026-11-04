@@ -3,19 +3,17 @@
 ## EN-05.1 — The standard job set
 
 **Statement.** A project's CI must cover, as separate jobs: build and test
-(across the configurations the project supports), formatting, linting,
-standards gates (deviations and synced files), and — for a library — a consumer
+across supported configurations, formatting, linting, and standards gates
+(deviations and synced files). A library must also have a separate consumer
 build against the installed package.
 
-**Rationale.** Separate jobs because a single job reports one failure and hides
-the rest, and because the names in the failure list should say what broke
-without opening a log.
+**Rationale.** A single job reports one failure and hides the rest. The job
+names in the failure list should say what broke without opening a log.
 
-The consumer job is the one most often skipped and the one that catches the
-worst class of defect: an in-tree build tests neither the exported target names
-nor whether a public compile definition survives installation. Both are invisible
-until a downstream project fails, and the compile-definition case fails as a
-silent ABI mismatch rather than a link error.
+An in-tree build does not test exported target names or whether public compile
+definitions survive installation. An installed-package consumer catches those
+defects before a downstream project does. Missing compile definitions can cause
+an ABI mismatch without a link error.
 
 **Enforcement.** gate:synced-files (partial), review.
 **Deviation.**
@@ -27,12 +25,11 @@ cover the supported surface.
 
 ## EN-05.2 — Nothing gates advisorily
 
-**Statement.** A job that is not allowed to fail the build must not exist. Either
-it gates, or it is deleted.
+**Statement.** A job that is not allowed to fail the build must not exist.
 
-**Rationale.** A permanently-yellow job is read as green within a week. Keeping
-it costs CI minutes and buys nothing. If a check is genuinely not ready to gate,
-the work is to make it gate — narrow its scope until it can.
+**Rationale.** Readers learn to ignore a job that remains non-blocking. It
+consumes CI time without resolving findings. Narrow an unready check's scope
+until it can block.
 
 **Enforcement.** gate:synced-files (partial), review.
 **Deviation.** never.
@@ -46,10 +43,9 @@ and verifies that the declared obligations are sufficient.
 **Statement.** A workflow with both branch-triggered and scheduled runs must
 place the scheduled run in its own concurrency group.
 
-**Rationale.** With a shared group and `cancel-in-progress`, a push to the
-default branch cancels a nightly run in flight. That is precisely the run that
-cannot be cheaply repeated — the long fuzz budget, the extended soak — and its
-cancellation is invisible.
+**Rationale.** A shared group with `cancel-in-progress` lets a push cancel a
+scheduled run. Long fuzzing runs and extended soaks are expensive to repeat,
+and cancellation can go unnoticed.
 
 **Enforcement.** gate:synced-files (partial), review.
 **Deviation.** never.
@@ -63,9 +59,8 @@ and verifies that the declared obligations are sufficient.
 **Statement.** Fuzzing, soaks and anything else time-boxed must use a short
 budget on push and pull request, and a long budget on the schedule.
 
-**Rationale.** Per-push runs exist to catch an obvious regression immediately;
-making them long makes every push slow and teaches people to skip CI. Depth
-comes from the scheduled run, which nobody is waiting on.
+**Rationale.** Short runs catch obvious regressions without delaying every
+push. Scheduled runs allow deeper testing without keeping a developer waiting.
 
 **Enforcement.** gate:synced-files (partial), review.
 **Deviation.** permitted.
@@ -79,9 +74,9 @@ and verifies that the declared obligations are sufficient.
 **Statement.** A CI checkout must set `persist-credentials: false` unless a
 later step genuinely needs to push.
 
-**Rationale.** The default leaves a usable token in the runner's git
-configuration for every subsequent step, including any third-party action and
-anything a build script invokes. There is rarely a reason to want that.
+**Rationale.** The default leaves a usable token in the runner's Git
+configuration. Every later step, including third-party actions and build
+scripts, can access it.
 
 **Enforcement.** gate:synced-files (partial), review.
 **Deviation.** permitted with record.
@@ -95,12 +90,12 @@ and verifies that the declared obligations are sufficient.
 **Statement.** A dependency fetched by URL must be pinned by content hash. A
 dependency fetched by git must be pinned to a tag or commit, never a branch.
 
-**Rationale.** A moved or compromised archive otherwise substitutes silently,
-and a branch pin means the build is not reproducible — yesterday's green run
-proves nothing about today's.
+**Rationale.** An unpinned archive can be moved or replaced after compromise.
+A branch can change between builds, so a passing run does not establish the
+result of the next one.
 
-Bumping a version means updating the URL and the hash together; a mismatch is
-the mechanism working.
+A version update changes the URL and hash together. A mismatch exposes
+an inconsistent pin.
 
 **Enforcement.** review.
 **Deviation.** never.
