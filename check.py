@@ -163,7 +163,8 @@ def check_matrix(text: str, found, faults: list[str], path: str) -> None:
 
 def links(documents: dict[Path, str], root: Path, faults: list[str]) -> None:
     for path, text in documents.items():
-        # These are path checks, not fragment or remote-URL validation (EN-03.8).
+        # Only the path of a relative link is checked; fragments and absolute URLs
+        # are skipped.
         visible = re.sub(
             r"^(`{3,}|~{3,}).*?^\1[^\n]*$", "", text, flags=re.MULTILINE | re.DOTALL,
         )
