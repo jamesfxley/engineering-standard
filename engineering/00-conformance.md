@@ -2,35 +2,34 @@
 
 ## Normative language
 
-**must** / **must not** — a requirement. Violating it without a recorded
-deviation is a defect.
-**should** / **should not** — a strong default. Departing from it needs a reason
-stated at the site, but not a registered deviation.
-**may** — permission, no obligation either way.
+- **must** / **must not** states a requirement. Violating it without a recorded
+  deviation is a defect.
+- **should** / **should not** states a strong default. Departing from it needs a
+  reason at the site but no registered deviation.
+- **may** grants permission without an obligation.
 
 ## Rule format
 
 Every rule in this standard states four things:
 
 - **Statement** — the requirement, stated briefly.
-- **Rationale** — what goes wrong without it. A rule whose rationale is "it is
-  the convention" is not worth having.
+- **Rationale** — what goes wrong without the rule. Convention alone does not
+  justify a rule.
 - **Enforcement** — the named check, compiler flag or gate that catches a
   violation, or `review` when nothing can.
 - **Deviation** — *permitted*, *permitted with record*, or *never*,
   optionally with the conditions.
 
-A rule marked `review` is not weaker; it is the subset review
-exists to cover, because tooling cannot.
+Review covers requirements that tools cannot check.
 
 ## EN-00.1 — Rule IDs are stable
 
 **Statement.** Rule IDs must never be renumbered or reused. A retired rule keeps
 its number and is marked withdrawn.
 
-**Rationale.** Code, review comments and deviation records cite IDs. Renumbering
-invalidates every citation at once, silently — the citation still parses, it
-just now points at a different rule.
+**Rationale.** Code, review comments and deviation records cite IDs.
+Renumbering leaves those citations pointing at a different rule without making
+them visibly invalid.
 
 **Enforcement.** review.
 **Deviation.** never.
@@ -42,9 +41,8 @@ anything language-independent, the language tier for a language rule,
 the repository's own orientation document for a rule true only of that
 repository.
 
-**Rationale.** Duplication across layers is how guidance drifts: two copies are
-edited at different times and then disagree, and there is no way to tell which
-one is current.
+**Rationale.** Copies in different layers drift when edited separately. Readers
+cannot tell which copy is current.
 
 **Enforcement.** review.
 **Deviation.** never.
@@ -54,11 +52,10 @@ one is current.
 ## EN-00.3 — Fix before suppressing
 
 **Statement.** A finding must be fixed unless the rule genuinely does not apply.
-A suppression is the last option, not the quick one.
+A suppression is the last option.
 
-**Rationale.** Most suppressions are a design smell wearing a comment. The check
-fired because the code has the shape the check describes; usually the honest
-answer is that the shape is wrong.
+**Rationale.** A diagnostic usually identifies a problem in the code's design.
+Suppressing it preserves that problem.
 
 **Enforcement.** gate:deviations (partial), review.
 **Deviation.** never.
@@ -71,18 +68,15 @@ answer is that the shape is wrong.
 suppresses, must carry a justification on the line immediately above it, and
 must have specific approval.
 
-**Rationale.** A suppression that names nothing disables an unknown set, forever,
-and cannot be reviewed — nobody can tell later whether it is still needed or what
-it was hiding. Naming the rule also makes the suppression fail loudly if the
-rule is renamed, which is the correct outcome.
+**Rationale.** An unnamed suppression disables an unknown set of checks.
+Readers cannot tell what it hides or whether it is still needed. Naming the
+check also exposes a renamed check as a failure.
 
-Where two rules fire on one site, name both rather than going bare. A reserved
-identifier typically trips both a naming rule and a reserved-identifier rule;
-listing the pair is precise, and a bare suppression there is simply the lazier
-option, not a necessary one.
+Where two rules fire at one site, name both. A reserved identifier typically
+triggers both a naming rule and a reserved-identifier rule.
 
-The justification says why the rule's *purpose* is not served here. "the linter
-complains" is not a justification.
+The justification explains why the rule's purpose does not apply at the site.
+"The linter complains" gives no such reason.
 
 **Enforcement.** review.
 **Deviation.** never.
@@ -97,20 +91,17 @@ registered in `docs/deviations.md` with the check name, the scope, a rationale, 
 risk assessment, specific approval and a review date in the future. Review
 rejects an unregistered scope-wide disable.
 
-The first column holds **the name the linter uses for the check**, not this
-standard's rule ID. Review compares it with the tool configuration to
-establish which check is disabled. Cite the governing rule ID in the rationale,
-where a reader looking for it will find it. Each language tier gives the concrete spelling.
+The first column holds the linter's check name. Review compares the name with
+the tool configuration to establish which check is disabled. Cite the governing
+rule ID in the rationale. Each language tier gives the check's spelling.
 
-**Rationale.** Scope-wide suppression is sometimes correct — a tree that
-transcribes a wire format really is outside a naming rule. What is never correct
-is doing it invisibly. A per-directory config disable is unbounded in *time* and
-in *coverage*: every file added to that tree later loses the rule for free, and
-nobody is ever told. The rationale is usually written and then buried in a
-config file nobody re-reads.
+**Rationale.** Some code needs a scope-wide suppression. A tree that
+transcribes a wire format can need an exception to a naming rule. A directory
+configuration can disable the check indefinitely for every file later added to
+that directory.
 
-Registration changes three things: it is visible in one place, it carries a risk
-assessment saying what is lost and what covers it instead, and it expires.
+Registration makes the suppression visible, records the risk and the checks
+that cover it, and gives it an expiry.
 
 **Enforcement.** review.
 **Deviation.** never.
@@ -125,12 +116,9 @@ checks approval, rationale, risk assessment and future review dates.
 in the same change. Raising a ceiling needs specific approval and its own
 commit, with the reason in the commit message.
 
-**Rationale.** Individually justified suppressions accumulate. Each one is
-defensible and the total is not, and without a number nobody notices the total.
-A ceiling makes the trend visible and puts the cost of a new suppression where
-it belongs: on the change that needs it, in a commit that has to say why.
-
-Ratcheting down after removing suppressions is routine and needs no ceremony.
+**Rationale.** Individually justified suppressions can accumulate unnoticed.
+A ceiling makes the total visible and assigns the cost of an increase to the
+change that needs it. Removing suppressions and lowering the ceiling is routine.
 
 **Enforcement.** gate:deviations (partial), review.
 **Deviation.** permitted with record — that is what raising the ceiling is.
@@ -146,18 +134,15 @@ the root tool configuration, with its reason written there and a review date in
 the future — not repeated as per-directory disables or scattered per-site
 suppressions.
 
-**Rationale.** "We never follow this rule" is a stronger claim than "this
-directory does not", and it deserves more visibility, not less. In the root
-configuration it applies predictably and its reason sits next to it. Scattered,
-the same decision reads as many small local judgements and nobody ever
-re-examines the whole.
+**Rationale.** The root configuration makes a project-wide decision visible
+and applies it consistently. Scattered suppressions obscure its scope and make
+it harder to re-examine.
 
-The expiry is what EN-00.5 requires of the narrower case, and the argument for
-it holds a fortiori here: a disable with no date is unbounded in time, and the
-wider its scope the more a stale one costs. The date does not force the rule
-back on — it forces the claim to be made again.
+As in EN-00.5, a future review date requires the decision to be re-examined. It
+does not automatically re-enable the rule. A stale decision costs more as its
+scope grows.
 
-Keep that list short. A long one means the rule set was chosen badly.
+Keep the list short. A long list indicates a poorly chosen rule set.
 
 **Enforcement.** review.
 **Deviation.** never.
@@ -170,9 +155,9 @@ Keep that list short. A long one means the rule set was chosen badly.
 file layout. Consumers supply their configuration through declared extension
 points. Shared rules may name open conventions and language tools.
 
-**Rationale.** An assumption about a particular consumer makes reuse depend on
-imitating that consumer. An explicit extension point keeps the dependency in
-the direction of the component being consumed.
+**Rationale.** Assumptions about one consumer require other consumers to
+imitate it. Explicit extension points let consumers configure the component
+without making the component depend on them.
 
 **Enforcement.** review.
 **Deviation.** never.
@@ -182,7 +167,8 @@ extension imports.
 
 ## Attribution
 
-This standard is original wording. Where it derives from published guidance:
+This standard uses original wording and draws on the following published
+guidance:
 
 - Design and lifetime rules draw on the
   [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/)
@@ -196,10 +182,9 @@ This standard is original wording. Where it derives from published guidance:
 - Hardening options follow the
   [OpenSSF Compiler Options Hardening Guide for C and C++](https://best.openssf.org/Compiler-Hardening-Guides/Compiler-Options-Hardening-Guide-for-C-and-C++.html).
 
-MISRA C++:2023 is a paid, copyright-restricted document and its text is **not**
-reproduced anywhere in this standard — no quotations, and no MISRA rule numbers
-presented as ours. Where a constrained-target rule here serves a similar purpose,
-it was written independently from the underlying engineering reason.
+MISRA C++:2023 is a paid, copyright-restricted document. This standard reproduces
+none of its text and presents no MISRA rule numbers as its own. Constrained-target
+rules with similar purposes are written independently from engineering reasons.
 
 ## EN-00.9 — Source code cites a rule only to suppress or check it
 

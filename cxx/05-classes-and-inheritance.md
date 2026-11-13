@@ -6,13 +6,12 @@
 declare one of destructor, copy constructor, copy assignment, move constructor
 or move assignment, it must declare or delete all five.
 
-**Rationale.** Declaring one suppresses others in ways that are easy to get
-wrong: a user-declared destructor suppresses the implicit move operations, so a
-type that was cheap to move silently starts copying — a performance change with
-no diagnostic.
+**Rationale.** Declaring one special member can suppress others. A
+user-declared destructor suppresses implicit move operations, which can make a
+type copy instead of move without a diagnostic.
 
-Rule of zero is the goal. A type that owns nothing raw needs none of the five,
-and the compiler's versions are correct by construction.
+A type without raw ownership needs none of the five; compiler-generated members
+handle its resources correctly.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** permitted with record, in test doubles constructed on the stack
@@ -25,11 +24,10 @@ and never copied.
 **Statement.** A constructor callable with one argument must be `explicit`,
 unless implicit conversion is the type's deliberate purpose.
 
-**Rationale.** Implicit conversion turns an unrelated argument into a valid call
-at a distance, and changes overload resolution in code that never mentioned the
-type.
+**Rationale.** Implicit conversion can make an unrelated argument a valid call
+and change overload resolution in code that does not mention the type.
 
-Conversion operators are the same rule; mark them `explicit` too.
+The same rule applies to conversion operators.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** permitted with
@@ -43,12 +41,11 @@ record, for a deliberate conversion type.
 destructor or a protected non-virtual one. A class not designed for inheritance
 should be `final`.
 
-**Rationale.** Deleting through a base pointer with a non-virtual destructor is
-undefined behaviour and typically leaks the derived part silently. The protected
-non-virtual form is the correct choice for an interface never deleted
-polymorphically, and says so.
+**Rationale.** Deleting through a base pointer with a non-virtual destructor
+is undefined behaviour and can leak the derived part. A protected non-virtual
+destructor prevents deletion through the interface.
 
-`final` on a leaf class devirtualises calls and states intent.
+`final` states that inheritance ends at the class and allows devirtualisation.
 
 **Enforcement.** gate:lint (partial), compiler (-Wnon-virtual-dtor), review.
 **Deviation.** never.
@@ -61,9 +58,9 @@ polymorphically, and says so.
 **Statement.** An overriding function must be marked `override` and must not
 repeat `virtual`.
 
-**Rationale.** `override` makes a signature mismatch a compile error. Without
-it, changing a base signature silently creates a new function that is never
-called, and the derived behaviour disappears with no diagnostic.
+**Rationale.** `override` exposes signature mismatches at compile time.
+Without it, a base-signature change can leave a derived function that no longer
+overrides and is never called.
 
 **Enforcement.** gate:lint (partial), compiler (-Woverloaded-virtual), review.
 **Deviation.** never.
@@ -75,10 +72,8 @@ called, and the derived behaviour disappears with no diagnostic.
 **Statement.** A type with invariants must keep its data private. An aggregate
 with no invariants may have public data and should be a `struct`.
 
-**Rationale.** The distinction is whether there is an invariant to protect. A
-struct that is purely a bundle of values has none, and wrapping it in accessors
-adds noise without adding safety. A type that maintains a relationship between
-its members must control every write to them.
+**Rationale.** A type with relationships between its members needs to control
+every write. Accessors add no safety to an aggregate that has no invariant.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** permitted with record.
@@ -92,11 +87,9 @@ permit the all-public aggregate.
 outlives it by construction and the class is non-copyable. Otherwise hold a
 pointer or a value.
 
-**Rationale.** A reference member deletes copy assignment and cannot be
-rebound, which is either exactly what you want or a problem discovered much
-later. It is right when a component is handed a collaborator that outlives it
-and null is not a valid state — storing a pointer there would add a state that
-cannot occur.
+**Rationale.** A reference member cannot be rebound and deletes copy
+assignment. Those properties suit a component whose non-null collaborator
+outlives it. A pointer would add a null state that the design does not use.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** permitted with record — and this is a common legitimate one.
@@ -109,12 +102,12 @@ cannot occur.
 its consumers call, with no data members and no implementation beyond defaulted
 no-ops where a default genuinely applies.
 
-**Rationale.** Every method on a seam is a method every fake and every real
-implementation must provide. A wide interface makes writing a second
-implementation expensive, which is the thing the seam existed to make cheap.
+**Rationale.** Every fake and every real implementation must provide every
+method on a seam. A wide interface makes a second implementation expensive,
+which defeats the purpose of the seam.
 
-Defaulted no-op methods are a real convenience for an event sink with many
-optional callbacks — an implementer overrides the two they care about.
+Default no-op callbacks let an event sink implement only the optional events
+it needs.
 
 **Enforcement.** review.
 **Deviation.** permitted.

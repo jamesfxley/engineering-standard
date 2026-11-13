@@ -1,39 +1,34 @@
 # Engineering standard
 
-The normative rules this author's projects are written against, and the
-resolvable target of every `EN-` and `CXX-` citation in them.
+This repository defines the engineering and C++ rules used by this author's
+projects. It is the source for their `EN-` and `CXX-` citations.
 
-A repository cites a rule by ID — in a code comment, in a deviation rationale,
-in a specification row. That citation is only worth writing if a reader can
-follow it, so the rules live here rather than inside any one project or any one
-developer's tool configuration.
+Keeping the rules here lets readers resolve citations independently of any
+project or developer's tool configuration.
 
 ## The two tiers
 
-Practice and language are separated so that a second language is additive rather
-than a restructure.
+Separate engineering and language tiers allow languages to be added without
+restructuring the standard.
 
 | Tier | IDs | Contents |
 |---|---|---|
 | [`engineering/`](engineering/) | `EN-<chapter>.<n>` | Engineering rules. |
-| [`cxx/`](cxx/) | `CXX-<chapter>.<n>` | C++ language rules only. Cites `EN-*` rather than restating it. |
+| [`cxx/`](cxx/) | `CXX-<chapter>.<n>` | C++ language rules, with citations to `EN-*`. |
 
 The engineering rules are language-independent. They cover conformance and
 deviations, gates, traceability, documentation, testing, CI, releases and
 version control. Where an enforcement field needs a concrete mechanism, it names
 the C++ binding, the one bound language.
 
-`PY-` and `RS-` are reserved for unwritten tiers (FW-1).
+[FW-1](docs/future-work.md#fw-1--python-and-rust-language-tiers) covers the
+reserved Python and Rust tiers.
 
 ## Rule format
 
-Every rule is a numbered clause with four fields. The ID is the stable part:
-rules are never renumbered, because a citation must survive a reorganisation of
-the document.
-
-The fields are defined in
-[EN-00's rule format](engineering/00-conformance.md#rule-format).
-The rationale includes the argument against the rule where one exists.
+[EN-00's rule format](engineering/00-conformance.md#rule-format) defines each
+clause's four fields. [EN-00.1](engineering/00-conformance.md#en-001--rule-ids-are-stable)
+governs IDs. Rationales include the argument against a rule where one exists.
 
 ## Chapters
 
@@ -42,7 +37,7 @@ The rationale includes the argument against the rule where one exists.
 | Chapter | Covers |
 |---|---|
 | [00-conformance.md](engineering/00-conformance.md) | Normative force, the deviation procedure, standing deviations |
-| [01-quality-gates.md](engineering/01-quality-gates.md) | Linting, warnings, sanitizers, coverage |
+| [01-quality-gates.md](engineering/01-quality-gates.md) | Linting, warnings, sanitisers, coverage |
 | [02-spec-and-traceability.md](engineering/02-spec-and-traceability.md) | Requirement IDs, citations and review |
 | [03-documentation.md](engineering/03-documentation.md) | Structure and style of `docs/` |
 | [04-testing.md](engineering/04-testing.md) | What to test, seams, what to fake |
@@ -71,73 +66,59 @@ The rationale includes the argument against the rule where one exists.
 | [13-repository-layout.md](cxx/13-repository-layout.md) | Where files go; test placement; the fixed root file set |
 | [enforcement-matrix.md](cxx/enforcement-matrix.md) | Declared coverage of the C++ rules |
 
-## The ones that matter most
+## Selected rules
 
-Everything else is elaboration. If only these survive:
-
-**EN-01.1 — Start from every check, exclude with a reason.** A tool
-configuration that enables a hand-picked subset silently omits everything nobody
-thought of, which is most of what the tool knows.
-
-**EN-00.4 — A suppression names its rule and carries a justification.** It names
-the exact rule and applies to one site, with the reason on the line above it.
-
-**EN-00.5 — A rule turned off for a scope is a standing deviation.** Registered
-with approval, a rationale, a risk assessment and a future review date,
-checked by review.
-
-**EN-02.1 — Every behavioural guarantee has an ID, and the code cites it.** The
-ID is defined in the project's specification, and the code and tests that
-implement and exercise the guarantee cite it.
-
-**EN-02.2 — Cite the ID, never a section number.** IDs survive a reorganisation
-of the document; section numbers do not.
+- [EN-01.1](engineering/01-quality-gates.md#en-011--start-from-every-check-exclude-with-a-reason)
+  governs linter configuration.
+- [EN-00.4](engineering/00-conformance.md#en-004--a-suppression-names-its-rule-and-carries-a-justification)
+  governs site suppressions.
+- [EN-00.5](engineering/00-conformance.md#en-005--scope-wide-suppression-is-a-standing-deviation)
+  governs standing deviations.
+- [EN-02.1](engineering/02-spec-and-traceability.md#en-021--every-behavioural-guarantee-has-an-id)
+  governs requirement IDs and citations.
+- [EN-02.2](engineering/02-spec-and-traceability.md#en-022--cite-the-id-never-a-section-number)
+  governs the form of requirement citations.
 
 ## Where the C++ rules come from
 
-Three sources, layered by what each is good at. None is adopted whole.
+[Attribution](engineering/00-conformance.md#attribution) names the published
+sources and explains their use. None is adopted in full.
 
-- **Design, lifetime, bounds and type safety** follow the C++ Core Guidelines.
-  They are modern, maintained, and map near one-to-one onto `cppcoreguidelines-*`
-  checks, so most of the layer is machine-checked.
-- **Formatting** follows the Google C++ Style Guide, via clang-format's
-  `BasedOnStyle: Google`. Its *language restrictions* are not adopted: they
-  encode Google's internal history rather than a principle. Neither is its
-  naming — `CXX-01.2` uses `lower_case` functions and `UPPER_CASE` constants
-  where Google uses `CamelCase` and `kConstantName`, and `CXX-01.1` requires
-  `#pragma once` where Google requires an `#ifndef` guard. Both departures are
-  deliberate and carry their reasoning in the rule.
-- **Security** draws on CERT C++, `bugprone-*` and the static analyzer.
+The maintained Core Guidelines map near one-to-one to `cppcoreguidelines-*`
+checks, making most of the design, lifetime, bounds and type-safety layer
+machine-checked. Security checks use `bugprone-*` and the static analyser.
 
-Neither source prescribes a repository layout. `CXX-13` decides it, and says so
-rather than implying a lineage it does not have.
-
-MISRA C++:2023 is a paid, copyright-restricted document. Its text appears
-nowhere here. Where `cxx/11-constrained-targets.md` serves a similar purpose — a
-restricted subset for a constrained target — it was written from the underlying
-engineering reason rather than derived from MISRA's wording.
+Google's language restrictions reflect its internal history and are not adopted. Naming and
+include guards follow
+[CXX-01.2](cxx/01-lexical-and-naming.md#cxx-012--identifier-case) and
+[CXX-01.1](cxx/01-lexical-and-naming.md#cxx-011--pragma-once-on-line-1).
+Google uses `CamelCase` functions, `kConstantName` constants and `#ifndef`
+include guards. The linked rules explain this standard's choices.
+[CXX-13](cxx/13-repository-layout.md) defines the repository layout.
 
 ## Binding to a language
 
-Each `EN-` rule that needs a mechanism carries a binding table. One column is
-populated today:
+Binding tables give language-specific mechanisms for `EN-` rules. C++ is the
+only populated column:
 
 | | C++ | Python | Rust |
 |---|---|---|---|
 | Standard | `cxx/` | — | — |
-| Linter | clang-tidy, `WarningsAsErrors: '*'` | — | — |
-| Per-site suppression | `NOLINTNEXTLINE(check)` | — | — |
-| Scope-wide disable | nested `.clang-tidy` | — | — |
-| Compiler strictness | `-Werror` plus the shared warning set | — | — |
+| Linter | [EN-01 binding](engineering/01-quality-gates.md#binding) | — | — |
+| Per-site suppression | [CXX-00.2](cxx/00-conformance.md#cxx-002--suppression-syntax) | — | — |
+| Scope-wide disable | [CXX-00.3](cxx/00-conformance.md#cxx-003--scope-wide-disables-are-registered-not-added) | — | — |
+| Compiler strictness | [EN-01 binding](engineering/01-quality-gates.md#binding) | — | — |
 
-Adding a language means filling a column and adding a `<lang>/` tier that binds
-the `EN-*` policies to that language's mechanisms — its linter, its per-site
-suppression syntax, its scope-wide disable mechanism, its strictness flags.
+Adding a language requires a binding column and a `<lang>/` tier. The tier
+binds `EN-*` policies to the language's linter, site suppressions, scope-wide
+disables and strictness flags.
 
 ## Citing a rule
 
-Cite the ID alone. It is stable; paths, section numbers and chapter titles are
-not.
+[EN-00.9](engineering/00-conformance.md#en-009--source-code-cites-a-rule-only-to-suppress-or-check-it)
+governs rule citations in source code.
+[EN-02.2](engineering/02-spec-and-traceability.md#en-022--cite-the-id-never-a-section-number)
+governs requirement citations.
 
 ```cpp
 // CXX-06.3: the span does not own the buffer, so the caller outlives it.
@@ -145,20 +126,20 @@ not.
 
 | Where | Form |
 |---|---|
-| Code comment | `CXX-06.3` at the site the rule governs |
-| Deviation rationale | the standard's rule ID in the prose; the **linter's own check name** in the register's first column, checked by review |
-| Specification row | the `EN-` ID the requirement's structure follows |
+| Code comment | See EN-00.9 above. |
+| Deviation rationale | See [EN-00.5](engineering/00-conformance.md#en-005--scope-wide-suppression-is-a-standing-deviation). |
+| Specification row | The `EN-` ID governing the requirement's structure. |
 
 ## Consuming this repository
 
 Consumers pin a revision of this standard. A change is adopted when that pin
 moves. Rule IDs, the enforcement vocabulary and the gate-name table are the
-versioned contract. A withdrawn ID remains reserved.
+versioned contract. EN-00.1 governs withdrawn IDs.
 
 Run `python3 check.py` (`py -3 check.py` on Windows) with Python 3.11 or later
 to check the rule structure, enforcement declarations, withdrawn IDs, matrix
-and relative links. Exit 0
-means pass, 1 means a defect, and 2 means an input could not be read.
+and relative links. Exit status 0 means pass, 1 means a defect, and 2 means an
+input could not be read.
 
 ### Enforcement vocabulary
 
@@ -169,10 +150,10 @@ Each `Enforcement` field is a comma-separated list of:
 - `gate:<name> (full)` or `gate:<name> (partial)`.
 
 Full means the gate covers the stated rule within its declared applicability.
-Partial means a check covers only a stated part; the mechanism paragraph names
-the boundary and review covers the remainder. A registered gate name declares
-an interface, not proof that a particular tool implements it. Consumers must
-verify their implementation with negative controls and record unsupported gates.
+Partial means a check covers only the part named in the mechanism paragraph.
+Review covers the remainder. A registered name declares a gate interface.
+Consumers must verify their implementation with negative controls and record
+unsupported gates.
 
 The matrix separates full gate coverage, partial gate coverage and other
 checks. Concrete diagnostic names remain in each rule's mechanism paragraph.
@@ -199,10 +180,8 @@ Consumers implement these interfaces or identify the family-provided ones.
 
 ## AI-assisted development
 
-This project is developed with AI assistance. Design decisions, review and
-acceptance are human; an AI agent writes and refactors text under direction and
-against a written engineering standard. Every change is reviewed against the
-standard this repository defines before it lands.
+This project uses AI assistance to write and refactor text under human
+direction. People make design decisions and decide whether to accept changes.
+Every change is reviewed against this standard before it lands.
 
-This section is disclosure, not a warranty. The terms in [LICENSE](LICENSE)
-apply unchanged, including its disclaimer of warranties.
+The terms in [LICENSE](LICENSE) apply, including the disclaimer of warranties.

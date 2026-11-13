@@ -1,7 +1,6 @@
 # Future work
 
-Work deliberately not done in this repository, one entry per deferral, in the
-form `EN-03.7` defines.
+This file records deferred work in the form EN-03.7 defines.
 
 ## FW-1 — Python and Rust language tiers
 
@@ -18,13 +17,14 @@ The tiers are wanted but not yet written.
 
 ### What would have to be true to build it
 
-Time to write them. The Python tier comes first, because every repository
+The tiers need time to write. Python comes first because every repository
 under the standard contains Python and none contains Rust.
 
 ### Version cost
 
-Not breaking under `EN-06.1`.
+The change is not breaking under EN-06.1.
 
 ### Affected repositories
 
-engineering-standard. Consumers adopt a tier by moving their pin.
+The work affects engineering-standard. Consumer adoption follows
+[README.md](../README.md#consuming-this-repository).

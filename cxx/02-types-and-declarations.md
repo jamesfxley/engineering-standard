@@ -2,14 +2,15 @@
 
 ## CXX-02.1 — Fixed-width integers where width matters
 
-**Statement.** Use `std::uint8_t`, `std::int32_t` and friends wherever a width
-is part of the meaning — wire formats, register layouts, anything serialised.
+**Statement.** Use fixed-width types such as `std::uint8_t` and `std::int32_t`
+where width is part of the meaning, including wire formats, register layouts
+and serialised data.
 Use `std::size_t` for sizes and indices, `std::ptrdiff_t` for differences. Plain
 `short`, `long` and `unsigned` must not appear in an interface.
 
-**Rationale.** `long` is 32-bit on one supported platform and 64-bit on another.
-Code that works on the developer machine and corrupts a frame on the target is
-the predictable result, and it is invisible in review.
+**Rationale.** `long` is 32-bit on one supported platform and 64-bit on
+another. Depending on its width can corrupt frames on the target despite
+working on the developer's machine.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** permitted with record, for
@@ -22,11 +23,11 @@ an external API's own types.
 **Statement.** Enumerations must be scoped (`enum class`). An unscoped `enum`
 must not be introduced.
 
-**Rationale.** Unscoped enumerators leak into the surrounding scope and convert
-implicitly to integers, so two unrelated enumerations compare equal without a
-diagnostic and an enumerator collides with a variable name from elsewhere.
+**Rationale.** Unscoped enumerators enter the surrounding scope and convert
+implicitly to integers. Unrelated enumerations can compare equal without a
+diagnostic, and enumerator names can collide with variables.
 
-Give the enumeration an explicit underlying type where it is stored or
+Give an enumeration an explicit underlying type where it is stored or
 transmitted.
 
 **Enforcement.** review.
@@ -38,12 +39,10 @@ external API's own types.
 **Statement.** A narrowing conversion must be explicit, and must be preceded by
 a check that the value fits — or be provably in range at that point.
 
-**Rationale.** This is the single most common source of silent corruption in
-code that handles sizes and lengths. A `std::size_t` truncated to `std::uint16_t`
-produces a plausible small number, and every subsequent bounds check passes.
-
-Signed/unsigned mixing is the same defect wearing a different hat: a negative
-length becomes an enormous unsigned one and the capacity check succeeds.
+**Rationale.** Truncating a `std::size_t` to `std::uint16_t` can produce a
+plausible small value that passes later bounds checks. Mixing signed and
+unsigned values can turn a negative length into a large unsigned value and
+invalidate capacity checks.
 
 **Enforcement.** gate:lint (partial), compiler (-Wconversion -Wsign-conversion), review.
 **Deviation.** never.
@@ -57,9 +56,9 @@ length becomes an enormous unsigned one and the capacity check succeeds.
 point of declaration or in the constructor's member initialiser list. A
 default-constructed member left indeterminate is a defect.
 
-**Rationale.** Reading an indeterminate value is undefined behaviour, and the
-usual symptom is that it works — because the stack happened to hold zero — until
-a different call path leaves something else there.
+**Rationale.** Reading an indeterminate value is undefined behaviour. A
+variable can appear to work while its stack slot happens to contain zero, then
+fail on a different call path.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** permitted with record, for a
@@ -74,9 +73,9 @@ is a full overwrite.
 **Statement.** A value computable at compile time should be `constexpr`. A
 function that can be `constexpr` should be.
 
-**Rationale.** It moves work and errors from run time to compile time, and on a
-constrained target it is the difference between a table in flash and a table
-built into RAM at startup.
+**Rationale.** `constexpr` moves computation and errors to compile time. On a
+constrained target, it can place a table in flash instead of building it in RAM
+at startup.
 
 **Enforcement.** review.
 **Deviation.** permitted.
@@ -87,9 +86,8 @@ built into RAM at startup.
 exact type is an implementation detail. Do not use it where the reader needs the
 type and cannot infer it.
 
-**Rationale.** `auto` prevents a whole class of accidental-conversion and
-accidental-copy bugs, which is its real value — not brevity. Used where the type
-carries meaning the reader needs, it hides that meaning.
+**Rationale.** `auto` prevents accidental conversions and copies. It can also
+hide information when the reader needs the exact type.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** permitted.
@@ -101,9 +99,9 @@ carries meaning the reader needs, it hides that meaning.
 **Statement.** A fixed-size array must be `std::array`, not `T[N]`, except where
 an external interface requires the C form.
 
-**Rationale.** `std::array` knows its size, does not decay to a pointer when
-passed, and supports the same aggregate initialisation. Decay is what makes a C
-array's bounds unverifiable at the call site.
+**Rationale.** `std::array` retains its size and does not decay to a pointer
+when passed. It supports aggregate initialisation. A decayed C array loses the
+bounds needed to check the call.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** permitted with record, at an external boundary.
@@ -116,14 +114,13 @@ array's bounds unverifiable at the call site.
 **Statement.** A literal appearing in logic must be a named constant. Small
 structural values (0, 1, 2, powers of two used as widths or factors) are exempt.
 
-**Rationale.** An unexplained constant cannot be reviewed — nobody can tell
-whether `1500` is right. Naming it states the intent and makes a related
-constant's relationship visible.
+**Rationale.** Naming a constant explains its purpose and its relationship to
+other constants. An unexplained `1500` gives a reviewer no basis for checking it.
 
-Two legitimate exemptions, both registered under `EN-00.5` rather than assumed:
-literal expected values in a test (`EN-04.7`), and a tree transcribing a
-published wire format, where naming each offset inserts an indirection between
-the code and the document it must be checked against.
+Two exemptions need registration under EN-00.5: literal expected values in tests
+(EN-04.7), and a tree transcribing a published wire format. Wire-format code
+must be checked against its source document, and naming every offset puts an
+indirection between the two.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** permitted with record.

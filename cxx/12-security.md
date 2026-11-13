@@ -1,7 +1,7 @@
 # CXX-12 — Security
 
-Not safety-critical, but security-conscious: input is assumed hostile, and a
-defect that a tool can find is assumed to be findable by someone else too.
+The security assumptions are defined in
+[EN-01](../engineering/01-quality-gates.md).
 
 ## CXX-12.1 — Name the trust boundary
 
@@ -9,13 +9,10 @@ defect that a tool can find is assumed to be findable by someone else too.
 identified as a trust boundary, and everything crossing it must be validated
 before use.
 
-**Rationale.** Most input-handling defects come from data that was validated
-*somewhere* and then used somewhere else that assumed a different invariant.
-Naming the boundary makes the validation site explicit, so "was this checked?"
-has an answer.
-
-Inside the boundary, code may assume validated input. That assumption is only
-safe if the boundary is real.
+**Rationale.** Code can validate input against one invariant and then pass it
+to code that assumes another. An explicit boundary identifies where validation
+occurs. Inside it, code may assume validated input only if the boundary enforces
+that assumption.
 
 **Enforcement.** build (-fsanitize=fuzzer), review.
 **Deviation.** never.
@@ -28,10 +25,9 @@ safe if the boundary is real.
 type whose representable values are all valid, rather than checked repeatedly at
 each use.
 
-**Rationale.** Repeated checking is repeated opportunity to forget. A decoded
-wire value converted into an `enum class` after a range check cannot later be out
-of range; a length validated into a bounded type cannot later exceed capacity.
-This turns a discipline into a property.
+**Rationale.** Repeated checks can be forgotten. A range-checked wire value
+converted to an `enum class` cannot later be out of range. A bounded length type
+likewise preserves its capacity guarantee.
 
 **Enforcement.** review.
 **Deviation.** permitted.
@@ -42,10 +38,9 @@ This turns a discipline into a property.
 bytes actually received, never by a length field alone. A length field must be
 validated against the remaining input before it is used.
 
-**Rationale.** The canonical remote read primitive. A declared length larger
-than the data present, used without checking, reads past the buffer — and with a
-`std::span` correctly carried through, the check is one comparison that cannot
-be forgotten.
+**Rationale.** Trusting a declared length larger than the received input
+permits a remote out-of-bounds read. Passing `std::span` through the interface
+keeps the actual size available for comparison.
 
 **Enforcement.** build (-fsanitize=address -fsanitize=fuzzer), review.
 **Deviation.** never.
@@ -54,14 +49,13 @@ be forgotten.
 
 ## CXX-12.4 — Integer arithmetic on untrusted values is checked
 
-**Statement.** Arithmetic combining untrusted values — adding a length to an
-offset, multiplying a count by a size — must be checked for overflow before the
-result is used as a size or an index.
+**Statement.** Arithmetic combining untrusted values must be checked for
+overflow before its result is used as a size or index. Examples include adding
+a length to an offset and multiplying a count by a size.
 
-**Rationale.** `offset + length` wrapping produces a small number that passes a
-bounds check, and the access then happens somewhere entirely different. Signed
-overflow is additionally undefined, so the check may be optimised away if written
-after the fact — check *before*, not after.
+**Rationale.** A wrapped `offset + length` can pass a bounds check and direct
+an access elsewhere. Signed overflow is also undefined behaviour, so the
+compiler can remove a check performed after overflow. Check before the operation.
 
 **Enforcement.** build (-fsanitize=undefined), gate:lint (partial), review.
 **Deviation.** never.
@@ -73,12 +67,12 @@ after the fact — check *before*, not after.
 **Statement.** A value from outside the program must never be used as a format
 string. Variadic C interfaces should be avoided in library code entirely.
 
-**Rationale.** A user-controlled format string is an arbitrary read and often an
-arbitrary write. Varargs generally have no type checking, so a mismatch between
-specifier and argument is undefined behaviour the compiler cannot see.
+**Rationale.** An attacker-controlled format string permits arbitrary reads
+and often writes. Varargs lack type checking, so a mismatch between a format
+specifier and its argument can cause undefined behaviour without a diagnostic.
 
-Diagnostic and example code may use `printf`; library code may not. That
-distinction is a scope deviation, registered rather than assumed.
+Diagnostic and example code may use `printf`; library code may not. That scope
+deviation is registered.
 
 **Enforcement.** gate:lint (partial), compiler (-Wformat=2 -Werror=format-security), review.
 **Deviation.** permitted with record, outside library
@@ -93,10 +87,9 @@ code.
 `std::string_view` and `std::span` rather than pointer arithmetic over raw
 buffers.
 
-**Rationale.** `atoi` has no error reporting — it returns 0 for both "zero" and
-"not a number". `sscanf` combines that with a varargs interface and no bounds
-checking. `std::from_chars` reports where it stopped and why, allocates nothing,
-and cannot overrun.
+**Rationale.** `atoi` returns zero for both zero and invalid input. `sscanf`
+also uses varargs and lacks bounds checking. `std::from_chars` reports where it
+stopped and why, without allocating or overrunning the input.
 
 **Enforcement.** gate:lint (partial), review.
 **Deviation.** permitted with record.
@@ -106,16 +99,15 @@ and cannot overrun.
 ## CXX-12.7 — Resource exhaustion is a security property
 
 **Statement.** Every per-connection, per-request or per-peer resource must be
-bounded, and exhaustion must degrade predictably — refusing new work — rather
-than failing the whole system.
+bounded. Exhaustion must refuse new work predictably without failing the whole
+system.
 
-**Rationale.** On a fixed-capacity system, the cheapest attack is not memory
-corruption but taking every slot and holding it. Bounded resources plus timeouts
-on every phase turn that from an outage into a refusal.
+**Rationale.** An attacker can exhaust a fixed-capacity system by holding
+every slot. Resource bounds and timeouts for every phase let the system reject
+new work without failing.
 
-Timeouts are the part most often missing: a peer that opens a connection and
-sends one byte per minute holds a slot indefinitely unless a header-phase timeout
-exists.
+A header-phase timeout prevents a peer from holding a connection indefinitely
+by sending one byte per minute.
 
 **Enforcement.** build (ctest), review.
 **Deviation.** never.
@@ -128,11 +120,11 @@ exists.
 into artefacts, or committed. Where a build consumes them, the mechanism must
 keep them out of the source tree and out of the binary where possible.
 
-**Rationale.** Logs get shared, artefacts get published, and history is forever.
+**Rationale.** Logs can be shared, artefacts published and committed history
+retained indefinitely.
 
-A build-time trap worth stating: a value consumed at configure time is baked
-into the artefact and a stale build cache silently produces one built with the
-*wrong* value. Verify the artefact carries what was intended rather than assuming.
+A value consumed at configure time becomes part of the artefact. A stale build
+cache can retain an unintended value. Verify the value in the artefact.
 
 **Enforcement.** review.
 **Deviation.** never.
