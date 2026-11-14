@@ -61,8 +61,8 @@ queue with `false` must have its result checked.
 ## CXX-04.4 — Return values, not out-parameters
 
 **Statement.** A function should return its result. Out-parameters are permitted
-only where a return is impossible — multiple results of different lifetimes, or
-writing into caller-provided storage on a no-allocation path.
+only where a return is impossible, for example multiple results of different
+lifetimes, or writing into caller-provided storage on a no-allocation path.
 
 **Rationale.** Out-parameters cannot be `[[nodiscard]]` or used as expression
 results. The call also does not show whether they were written. `std::optional`,

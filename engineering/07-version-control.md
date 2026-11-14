@@ -2,7 +2,7 @@
 
 ## EN-07.1 — A branch names its issue
 
-**Statement.** A branch name must be lowercase, using digits and hyphens only.
+**Statement.** A branch name must use only lowercase letters, digits and hyphens.
 Where the work has an issue, the name must begin with that issue's number
 followed by a hyphen, as in `47-queue-index-can-wrap`. Work with no issue takes a
 descriptive slug alone.

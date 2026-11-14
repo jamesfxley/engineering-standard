@@ -90,8 +90,8 @@ the defect.
 
 ## CXX-06.6 — A moved-from object is only destroyed or reassigned
 
-**Statement.** After moving from an object, it must not be read except to
-destroy or reassign it.
+**Statement.** After an object has been moved from, it must only be destroyed or
+assigned a new value.
 
 **Rationale.** A moved-from object has a valid but unspecified state. Reading
 it can produce a plausible wrong value without crashing.
