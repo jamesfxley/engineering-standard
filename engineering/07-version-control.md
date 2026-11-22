@@ -91,11 +91,12 @@ squash-merging a pull request. Each merge lands one commit, whose subject is the
 pull request's title and is therefore governed by `EN-07.2`. The subject may end
 with the pull request number the hosting service appends, ` (#<n>)`; that suffix
 is not part of the subject under `EN-07.2` and is not an issue reference under
-`EN-07.4`. Commits on a branch
-are working state, but their subjects and trailers are still checked under
-`EN-07.2` and `EN-07.4`. The root commit that creates the repository is
-pushed before protection exists; it is the one commit that does not arrive by
-squash merge.
+`EN-07.4`. Commits on a branch are working state, but their subjects and
+trailers are still checked under `EN-07.2` and `EN-07.4`. A merge commit on a
+pull request's branch is exempt: its message is not checked under `EN-07.2`,
+`EN-07.3` or `EN-07.4`. The root commit that creates the repository is pushed
+before protection exists; it is the one commit that does not arrive by squash
+merge.
 
 **Rationale.** One commit per reviewed change makes the default branch
 readable, bisectable and revertible at the unit EN-02.6 requires. Reverting an
@@ -105,11 +106,20 @@ Using the pull request title as the subject gives both one form and one place
 to check it. Checking branch commits exposes message-policy violations before
 merge. The squash commit holds the final argument for the reviewed change.
 
+A merge commit on a pull request's branch, such as a hosting service's branch
+update or a merge of one branch into another, usually carries a generated
+message rather than an argument for a change. The squash discards it. Each
+commit it brings in is either already on the base or on the branch, where it is
+checked itself.
+
 **Enforcement.** review.
 **Deviation.** never.
 
 **Mechanism.** Review verifies branch protection and that each default-branch
-change after the root commit comes from a squash-merged pull request.
+change after the root commit comes from a squash-merged pull request. The
+commits gate leaves out merge commits when it checks a pull request or local
+branch work, and the commit-message hook leaves out the message of a merge in
+progress; the check of pushes to the default branch still covers them.
 
 ## EN-07.6 — An issue title states the fact, and the issue is labelled `defect`
 
