@@ -1,6 +1,7 @@
 # Engineering standard
 
-This repository defines language-neutral engineering rules and a C++ tier.
+This repository defines language-neutral engineering rules, a C++ tier and a
+Python tier.
 Read [README.md](README.md), [orientation.md](orientation.md) and
 [CONTRIBUTING.md](CONTRIBUTING.md) before editing the rules.
 

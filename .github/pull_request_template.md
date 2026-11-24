@@ -19,9 +19,9 @@ What was untrue, unenforced, or missing.
       enforcement, deviation
 - [ ] The enforcement column names something that exists, and I have checked
       that it does
-- [ ] `engineering/enforcement-matrix.md` and `cxx/enforcement-matrix.md`
-      have the rows for their tiers, including every rule added or whose
-      enforcement changed
+- [ ] `engineering/enforcement-matrix.md`, `cxx/enforcement-matrix.md` and
+      `python/enforcement-matrix.md` have the rows for their tiers, including
+      every rule added or whose enforcement changed
 - [ ] The prose follows EN-03.1
 - [ ] Consumers pinning this repository will need their pin bumped, and I have
       said so if the change is one they must take
