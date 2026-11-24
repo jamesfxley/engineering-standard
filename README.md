@@ -1,12 +1,12 @@
 # Engineering standard
 
-This repository defines the engineering and C++ rules used by this author's
-projects. It is the source for their `EN-` and `CXX-` citations.
+This repository defines the engineering, C++ and Python rules used by this
+author's projects. It is the source for their `EN-`, `CXX-` and `PY-` citations.
 
 Keeping the rules here lets readers resolve citations independently of any
 project or developer's tool configuration.
 
-## The two tiers
+## The tiers
 
 Separate engineering and language tiers allow languages to be added without
 restructuring the standard.
@@ -15,14 +15,15 @@ restructuring the standard.
 |---|---|---|
 | [`engineering/`](engineering/) | `EN-<chapter>.<n>` | Engineering rules. |
 | [`cxx/`](cxx/) | `CXX-<chapter>.<n>` | C++ language rules, with citations to `EN-*`. |
+| [`python/`](python/) | `PY-<chapter>.<n>` | Python language rules, with citations to `EN-*`. |
 
 The engineering rules are language-independent. They cover conformance and
 deviations, gates, traceability, documentation, testing, CI, releases and
 version control. Where an enforcement field needs a concrete mechanism, it names
-the C++ binding, the one bound language.
+the C++ binding; the Python tier binds the same rules to Python.
 
-[FW-1](docs/future-work.md#fw-1--python-and-rust-language-tiers) covers the
-reserved Python and Rust tiers.
+[FW-1](docs/future-work.md#fw-1--rust-language-tier) covers the reserved Rust
+tier.
 
 ## Rule format
 
@@ -66,6 +67,20 @@ governs IDs. Rationales include the argument against a rule where one exists.
 | [13-repository-layout.md](cxx/13-repository-layout.md) | Where files go; test placement; the fixed root file set |
 | [enforcement-matrix.md](cxx/enforcement-matrix.md) | Declared coverage of the C++ rules |
 
+### `python/` — `PY-*`
+
+| Chapter | Covers |
+|---|---|
+| [00-conformance.md](python/00-conformance.md) | Suppression syntax; scope-wide disables |
+| [01-tooling.md](python/01-tooling.md) | Ruff, the formatter, tool pins, supported versions |
+| [02-types.md](python/02-types.md) | mypy strict mode; `Any`; declared data; the public interface; encodings |
+| [03-error-handling.md](python/03-error-handling.md) | Catching, chaining, boundaries, `assert`, threads and tasks |
+| [04-testing.md](python/04-testing.md) | Test layout, strict pytest, the pure core, recordings, determinism |
+| [05-dependencies.md](python/05-dependencies.md) | Runtime dependencies, the lock file, lock updates |
+| [06-security.md](python/06-security.md) | Subprocesses, executing data, parsing input, secrets |
+| [07-repository-layout.md](python/07-repository-layout.md) | The project tree; automation in Python |
+| [enforcement-matrix.md](python/enforcement-matrix.md) | Declared coverage of the Python rules |
+
 ## Selected rules
 
 - [EN-01.1](engineering/01-quality-gates.md#en-011--start-from-every-check-exclude-with-a-reason)
@@ -98,16 +113,16 @@ include guards. The linked rules explain this standard's choices.
 
 ## Binding to a language
 
-Binding tables give language-specific mechanisms for `EN-` rules. C++ is the
-only populated column:
+Binding tables give language-specific mechanisms for `EN-` rules. C++ and Python
+are populated:
 
 | | C++ | Python | Rust |
 |---|---|---|---|
-| Standard | `cxx/` | — | — |
-| Linter | [EN-01 binding](engineering/01-quality-gates.md#binding) | — | — |
-| Per-site suppression | [CXX-00.2](cxx/00-conformance.md#cxx-002--suppression-syntax) | — | — |
-| Scope-wide disable | [CXX-00.3](cxx/00-conformance.md#cxx-003--scope-wide-disables-are-registered-not-added) | — | — |
-| Compiler strictness | [EN-01 binding](engineering/01-quality-gates.md#binding) | — | — |
+| Standard | `cxx/` | `python/` | — |
+| Linter | [EN-01 binding](engineering/01-quality-gates.md#binding) | [PY-01.1](python/01-tooling.md#py-011--ruff-selects-every-rule-and-runs-without-warnings) | — |
+| Per-site suppression | [CXX-00.2](cxx/00-conformance.md#cxx-002--suppression-syntax) | [PY-00.1](python/00-conformance.md#py-001--suppression-syntax) | — |
+| Scope-wide disable | [CXX-00.3](cxx/00-conformance.md#cxx-003--scope-wide-disables-are-registered-not-added) | [PY-00.2](python/00-conformance.md#py-002--scope-wide-disables-are-registered) | — |
+| Compiler strictness | [EN-01 binding](engineering/01-quality-gates.md#binding) | [PY-02.1](python/02-types.md#py-021--mypy-runs-in-strict-mode-over-sources-and-tests), [PY-04.2](python/04-testing.md#py-042--pytest-runs-strict-with-warnings-as-errors) | — |
 
 Adding a language requires a binding column and a `<lang>/` tier. The tier
 binds `EN-*` policies to the language's linter, site suppressions, scope-wide
@@ -173,6 +188,7 @@ Consumers implement these interfaces or identify the family-provided ones.
 | `commits` | shared |
 | `format` | shared |
 | `lint` | shared |
+| `type-check` | shared |
 | `build-warnings` | shared |
 | `compile-db` | shared |
 | `api-docs` | shared |

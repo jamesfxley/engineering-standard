@@ -10,8 +10,10 @@ from collections import Counter
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
-RULE = re.compile(r"^## ((?:EN|CXX)-\d{2}\.\d+) — (.+)$", re.MULTILINE)
-CANDIDATE = re.compile(r"^## (?:EN|CXX)-[^\n]+$", re.MULTILINE)
+TIERS = {"engineering": "EN", "cxx": "CXX", "python": "PY"}
+PREFIXES = "|".join(TIERS.values())
+RULE = re.compile(rf"^## ((?:{PREFIXES})-\d{{2}}\.\d+) — (.+)$", re.MULTILINE)
+CANDIDATE = re.compile(rf"^## (?:{PREFIXES})-[^\n]+$", re.MULTILINE)
 WITHDRAWN = frozenset({"EN-05.7", "EN-06.4", "CXX-13.6"})
 TERM = re.compile(
     r"review|(?:compiler|build) \([^()\n]+\)|gate:([a-z][a-z-]*) \((full|partial)\)",
@@ -91,7 +93,7 @@ def clauses(documents: dict[Path, str], root: Path, names: set[str], faults: lis
     found = {}
     for path, text in documents.items():
         relative = path.relative_to(root)
-        if len(relative.parts) != 2 or relative.parts[0] not in {"engineering", "cxx"}:
+        if len(relative.parts) != 2 or relative.parts[0] not in TIERS:
             continue
         faults.extend(
             f"{relative}: malformed rule heading {candidate[0]!r}"
@@ -131,7 +133,7 @@ def check_matrix(text: str, found, faults: list[str], path: str) -> None:
         faults.append(f"{path}: missing coverage columns")
     rows = {}
     for line in text.splitlines():
-        if not re.match(r"\| (?:EN|CXX)-", line):
+        if not re.match(rf"\| (?:{PREFIXES})-", line):
             continue
         columns = [part.strip() for part in line.strip("|").split("|")]
         if len(columns) != 4:
@@ -201,11 +203,13 @@ def main(argv: list[str] | None = None) -> int:
         readme = (root / "README.md").read_text(encoding="utf-8")
         names = gate_names(readme, faults)
         found = clauses(documents, root, names, faults)
-        for tier, prefix in (("engineering", "EN-"), ("cxx", "CXX-")):
+        for tier, prefix in TIERS.items():
             path = f"{tier}/enforcement-matrix.md"
             matrix = (root / path).read_text(encoding="utf-8")
             tier_rules = {
-                key: value for key, value in found.items() if key.startswith(prefix)
+                key: value
+                for key, value in found.items()
+                if key.startswith(f"{prefix}-")
             }
             check_matrix(matrix, tier_rules, faults, path)
         links(documents, root, faults)

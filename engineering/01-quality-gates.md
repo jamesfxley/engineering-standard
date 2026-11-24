@@ -162,9 +162,9 @@ what remains unknown. A plain failure report states what the gate detected.
 
 | | C++ | Python | Rust |
 |---|---|---|---|
-| Linter | clang-tidy, `Checks: *` minus exclusions, `WarningsAsErrors: '*'` | — | — |
-| Compiler strictness | `-Werror` + shared warning set (applied by one shared helper, not per target) | — | — |
-| Hardening | `_FORTIFY_SOURCE=3`, stack protector, RELRO/BIND_NOW, hardened stdlib assertions | — | — |
-| Sanitisers | ASan + UBSan + LSan, `halt_on_error=1` | — | — |
-| Fuzzing | libFuzzer, cached corpus | — | — |
-| Version pin | `.clang-version` | — | — |
+| Linter | clang-tidy, `Checks: *` minus exclusions, `WarningsAsErrors: '*'` | Ruff, `select = ["ALL"]` minus exclusions, no warnings (PY-01.1) | — |
+| Compiler strictness | `-Werror` + shared warning set (applied by one shared helper, not per target) | mypy strict mode (PY-02.1); pytest `filterwarnings = ["error"]` (PY-04.2) | — |
+| Hardening | `_FORTIFY_SOURCE=3`, stack protector, RELRO/BIND_NOW, hardened stdlib assertions | not applicable to pure Python | — |
+| Sanitisers | ASan + UBSan + LSan, `halt_on_error=1` | not applicable to pure Python | — |
+| Fuzzing | libFuzzer, cached corpus | no tool bound ([FW-2](../docs/future-work.md#fw-2--python-fuzzing-binding)) | — |
+| Version pin | `.clang-version` | Ruff `required-version`; mypy in `uv.lock` (PY-01.3) | — |
